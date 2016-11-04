@@ -84,19 +84,30 @@
 
 
 
-<meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
-Quick">
+<meta name="description" content="继承： 在定义一个新的类B时，如果该类与某个已有的类A相似（指的是B拥有A的全部特点），那么就可以把A作为一个基类，而把B作为基类的一个派生类（也称为子类）。
+派生类：
+派生类拥有基类的全部成员函数和成员变量，不论是private, protected还是public。派生类可以对基类进行扩充，添加新的成员变量和成员函数。派生类的使用和基类无关。
+
+tip: 在派生类的成员函数中，不能访问继承自基">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
-<meta property="og:url" content="http://yoursite.com/2016/10/10/hello-world/index.html">
+<meta property="og:title" content="C++程序设计---继承和派生">
+<meta property="og:url" content="http://yoursite.com/2016/11/04/C++程序设计---继承和派生/index.html">
 <meta property="og:site_name" content="Han's Blog Cell">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
-Quick">
-<meta property="og:updated_time" content="2016-10-10T11:22:55.139Z">
+<meta property="og:description" content="继承： 在定义一个新的类B时，如果该类与某个已有的类A相似（指的是B拥有A的全部特点），那么就可以把A作为一个基类，而把B作为基类的一个派生类（也称为子类）。
+派生类：
+派生类拥有基类的全部成员函数和成员变量，不论是private, protected还是public。派生类可以对基类进行扩充，添加新的成员变量和成员函数。派生类的使用和基类无关。
+
+tip: 在派生类的成员函数中，不能访问继承自基">
+<meta property="og:image" content="http://ww1.sinaimg.cn/mw690/a207cfd8jw1f4koz7s1d7j20oh0dun0j.jpg">
+<meta property="og:updated_time" content="2016-11-04T12:58:08.736Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello World">
-<meta name="twitter:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
-Quick">
+<meta name="twitter:title" content="C++程序设计---继承和派生">
+<meta name="twitter:description" content="继承： 在定义一个新的类B时，如果该类与某个已有的类A相似（指的是B拥有A的全部特点），那么就可以把A作为一个基类，而把B作为基类的一个派生类（也称为子类）。
+派生类：
+派生类拥有基类的全部成员函数和成员变量，不论是private, protected还是public。派生类可以对基类进行扩充，添加新的成员变量和成员函数。派生类的使用和基类无关。
+
+tip: 在派生类的成员函数中，不能访问继承自基">
+<meta name="twitter:image" content="http://ww1.sinaimg.cn/mw690/a207cfd8jw1f4koz7s1d7j20oh0dun0j.jpg">
 
 
 
@@ -117,10 +128,10 @@ Quick">
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2016/10/10/hello-world/"/>
+  <link rel="canonical" href="http://yoursite.com/2016/11/04/C++程序设计---继承和派生/"/>
 
 
-  <title> Hello World | Han's Blog Cell </title>
+  <title> C++程序设计---继承和派生 | Han's Blog Cell </title>
 </head>
 
 <body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
@@ -240,7 +251,7 @@ Quick">
             
             
               
-                Hello World
+                C++程序设计---继承和派生
               
             
           </h1>
@@ -252,8 +263,8 @@ Quick">
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-10-10T19:22:55+08:00" content="2016-10-10">
-              2016-10-10
+            <time itemprop="dateCreated" datetime="2016-11-04T19:36:40+08:00" content="2016-11-04">
+              2016-11-04
             </time>
           </span>
 
@@ -280,15 +291,21 @@ Quick">
       
 
       
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+        <p>继承： 在定义一个新的类B时，如果该类与某个已有的类A相似（<strong>指的是B拥有A的全部特点</strong>），那么就可以把A作为一个基类，而把B作为基类的一个派生类（也称为子类）。</p>
+<h2 id="派生类："><a href="#派生类：" class="headerlink" title="派生类："></a>派生类：</h2><blockquote>
+<p>派生类拥有基类的全部成员函数和成员变量，不论是private, protected还是public。<br>派生类可以对基类进行扩充，添加新的成员变量和成员函数。派生类的使用和基类无关。</p>
+</blockquote>
+<p>tip: 在派生类的成员函数中，不能访问继承自基类的private成员。</p>
+<h3 id="派生类对象的内存空间"><a href="#派生类对象的内存空间" class="headerlink" title="派生类对象的内存空间"></a>派生类对象的内存空间</h3><p>派生类对象的体积，等于基类对象的体积，再加上派生类对象自己的成员变量的体积。<strong>在派生类对象中，包含着基类对象</strong>，而且基类对象的存储位置位于派生类对象新增的成员变量之前。</p>
+<h3 id="覆盖"><a href="#覆盖" class="headerlink" title="覆盖"></a>覆盖</h3><p>派生类可以有和基类同名同参数表的函数，将会覆盖掉基类中的成员函数而不算是重复定义。比较常见的是，在派生类的覆盖函数中，先调用基类的该函数，再处理自己不同于基类中该函数的部分。</p>
+<h2 id="继承关系和复合关系"><a href="#继承关系和复合关系" class="headerlink" title="继承关系和复合关系"></a>继承关系和复合关系</h2><p>继承： “<strong>是</strong>”关系。<br>基类A, B是基类A的派生类。<br>逻辑上要求：“一个B对象也是一个A对象”。</p>
+<p>复合： “<strong>有</strong>”关系。<br>类C中“有”成员变量K, k是类D的对象，则C和D是复合关系。<br>一般逻辑上要求： “D对象是C对象的固有属性或者组成部分”。</p>
+<p>tips:<br>1，在一个类中，如果有一个成员变量是其他类的指针，通常称为是“知道”关系。<br>2， 对于基类/派生类 同名成员，调用基类的public成员时得用 base::__ 来调用。</p>
+<h2 id="访问范围说明符"><a href="#访问范围说明符" class="headerlink" title="访问范围说明符"></a>访问范围说明符</h2><p>基类的 private成员：可以被下列函数访问<br>    1，基类成员函数<br>    2，基类友员函数</p>
+<p>基类的 public成员：可以被下列函数访问<br>    1，基类成员函数<br>    2，基类友员函数<br>    3，派生类成员函数<br>    4，派生类友员函数<br>    5，其它的函数(故用private和public并不能凸显派生类和其他类的区别，引入protected)<br>基类的 protected成员：可以被下列函数访问<br>    1，基类成员函数<br>    2，基类友员函数<br>    3，派生类的成员函数可以访问<strong>当前对象</strong>的基类的保护成员</p>
+<h2 id="派生类的构造函数"><a href="#派生类的构造函数" class="headerlink" title="派生类的构造函数"></a>派生类的构造函数</h2><p>派生类对象 包含 基类对象。<br>执行派生类构造函数前，首先必须执行<strong>基类的构造函数</strong>。<br>如果派生类中还包含成员对象，也是用参数表的形式构造。<br><img src="http://ww1.sinaimg.cn/mw690/a207cfd8jw1f4koz7s1d7j20oh0dun0j.jpg" alt=""><br>具体形式：<br>构造函数名（形参表）：基类名（基类构造函数实参表），…,成员对象（实参表）,…<br>{<br>}</p>
+<h2 id="public继承的赋值兼容规则"><a href="#public继承的赋值兼容规则" class="headerlink" title="public继承的赋值兼容规则"></a>public继承的赋值兼容规则</h2><p>class base {};<br>class derived : <strong>public</strong> base {};<br>base b; derived d;<br>在加了public后，有以下几条赋值兼容规则。<br>1，派生类的对象可以赋值给基类对象。<br> b = d;（把d里面包含的base对象 赋值到b里去）<br>2，派生类对象可以初始化基类引用。<br> base&amp; br = d;<br>3， 派生类对象的地址可以赋值给基类的指针<br> base* pb = &d;</p>
+<p> tips : 声明派生类时，只需要列出它直接基类，构造时也只考虑直接基类的参数表。</p>
 
       
     </div>
@@ -314,12 +331,16 @@ Quick">
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2016/11/04/C++程序设计--运算符重载/" rel="next" title="C++程序设计--运算符重载">
+                <i class="fa fa-chevron-left"></i> C++程序设计--运算符重载
+              </a>
+            
           </div>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016/11/04/Cuda Beginning/" rel="prev" title="Cuda Beginning">
-                Cuda Beginning <i class="fa fa-chevron-right"></i>
+              <a href="/2016/11/04/C++程序设计--多态和虚函数/" rel="prev" title="C++程序设计--多态和虚函数">
+                C++程序设计--多态和虚函数 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -440,7 +461,7 @@ Quick">
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Quick-Start"><span class="nav-number">1.</span> <span class="nav-text">Quick Start</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Create-a-new-post"><span class="nav-number">1.1.</span> <span class="nav-text">Create a new post</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Run-server"><span class="nav-number">1.2.</span> <span class="nav-text">Run server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generate-static-files"><span class="nav-number">1.3.</span> <span class="nav-text">Generate static files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deploy-to-remote-sites"><span class="nav-number">1.4.</span> <span class="nav-text">Deploy to remote sites</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#派生类："><span class="nav-number">1.</span> <span class="nav-text">派生类：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#派生类对象的内存空间"><span class="nav-number">1.1.</span> <span class="nav-text">派生类对象的内存空间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#覆盖"><span class="nav-number">1.2.</span> <span class="nav-text">覆盖</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#继承关系和复合关系"><span class="nav-number">2.</span> <span class="nav-text">继承关系和复合关系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#访问范围说明符"><span class="nav-number">3.</span> <span class="nav-text">访问范围说明符</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#派生类的构造函数"><span class="nav-number">4.</span> <span class="nav-text">派生类的构造函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#public继承的赋值兼容规则"><span class="nav-number">5.</span> <span class="nav-text">public继承的赋值兼容规则</span></a></li></ol></div>
             
           </div>
         </section>

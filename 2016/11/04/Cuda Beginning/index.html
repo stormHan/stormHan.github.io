@@ -1,0 +1,646 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Fighting Life!" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="##前言
+由于一直在学习图形学，很多时候，图形学中的计算，如最近碰到的问题，计算随机点的中垂面，每个点的计算K近邻树，都是独立的。如果用GPU并行加速，可能会有好的提速效果。再加上导师最想希望我和实验室学长开始做一个基于Cuda的项目，故想开始学CUDA。
+结构目录
+
+Cuda是什么
+Cuda程序的编译过程
+我的第一个Cuda程序
+利用GPU加速Matrix Multiplication
+优化策略">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cuda Beginning">
+<meta property="og:url" content="http://yoursite.com/2016/11/04/Cuda Beginning/index.html">
+<meta property="og:site_name" content="Han's Blog Cell">
+<meta property="og:description" content="##前言
+由于一直在学习图形学，很多时候，图形学中的计算，如最近碰到的问题，计算随机点的中垂面，每个点的计算K近邻树，都是独立的。如果用GPU并行加速，可能会有好的提速效果。再加上导师最想希望我和实验室学长开始做一个基于Cuda的项目，故想开始学CUDA。
+结构目录
+
+Cuda是什么
+Cuda程序的编译过程
+我的第一个Cuda程序
+利用GPU加速Matrix Multiplication
+优化策略">
+<meta property="og:image" content="http://images2015.cnblogs.com/blog/917758/201605/917758-20160505212820888-1718051162.png">
+<meta property="og:image" content="http://ww4.sinaimg.cn/mw690/a207cfd8gw1f4448xxjsyj20it0cbwfx.jpg">
+<meta property="og:updated_time" content="2016-11-04T12:55:11.050Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Cuda Beginning">
+<meta name="twitter:description" content="##前言
+由于一直在学习图形学，很多时候，图形学中的计算，如最近碰到的问题，计算随机点的中垂面，每个点的计算K近邻树，都是独立的。如果用GPU并行加速，可能会有好的提速效果。再加上导师最想希望我和实验室学长开始做一个基于Cuda的项目，故想开始学CUDA。
+结构目录
+
+Cuda是什么
+Cuda程序的编译过程
+我的第一个Cuda程序
+利用GPU加速Matrix Multiplication
+优化策略">
+<meta name="twitter:image" content="http://images2015.cnblogs.com/blog/917758/201605/917758-20160505212820888-1718051162.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/11/04/Cuda Beginning/"/>
+
+
+  <title> Cuda Beginning | Han's Blog Cell </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Han's Blog Cell</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">Hi, My world!</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Cuda Beginning
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-11-04T19:35:30+08:00" content="2016-11-04">
+              2016-11-04
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>##前言</p>
+<p>由于一直在学习图形学，很多时候，图形学中的计算，如最近碰到的问题，计算随机点的中垂面，每个点的计算K近邻树，都是独立的。如果用GPU并行加速，可能会有好的提速效果。再加上导师最想希望我和实验室学长开始做一个基于Cuda的项目，故想开始学CUDA。</p>
+<h2 id="结构目录"><a href="#结构目录" class="headerlink" title="结构目录"></a>结构目录</h2><blockquote>
+<ul>
+<li>Cuda是什么</li>
+<li>Cuda程序的编译过程</li>
+<li>我的第一个Cuda程序</li>
+<li>利用GPU加速Matrix Multiplication</li>
+<li>优化策略1 : shared memory</li>
+<li>优化策略2 : texture memroy</li>
+<li>总结</li>
+</ul>
+</blockquote>
+<h3 id="Cuda是什么"><a href="#Cuda是什么" class="headerlink" title="Cuda是什么"></a>Cuda是什么</h3><p>CUDA(Compute Unified Device Architecture)，是显卡厂商NVIDIA推出的运算平台。 CUDA™是一种由NVIDIA推出的通用并行计算架构，该架构使GPU能够解决复杂的计算问题。而我们关心的事情有2点：</p>
+<blockquote>
+<ol>
+<li>Cuda是对GPU运算能力的并行利用；</li>
+<li>Cuda很好的兼容了C/C++，在此之上做了扩展；</li>
+</ol>
+</blockquote>
+<p>听到过一个不错的比喻：　<br>CPU可以类比于一个强壮的男人，随机现在硬件能力的不断提升，单个CPU已经拥有了很强大的能力，甚至CPU也有了多核，同样也有很多基于CPU的多线程编程。<br>而GPU则是一群小孩，每一个能力不大，但是由于GPU可以同时开启成千上万个线程，&lt;线程格，线程块，线程&gt;，因此可以同时做很多事情，极大的提升程序的运行效率，这就是并行的好处。</p>
+<p>tips : GPU是不适合做太多的逻辑判断的。它更希望能做一些简单的计算工作。</p>
+<h3 id="Cuda程序的编译过程"><a href="#Cuda程序的编译过程" class="headerlink" title="Cuda程序的编译过程"></a>Cuda程序的编译过程</h3><p>Cuda程序一般分为两个部分，其中一部分是用Nvidia的编译器进行编译，在GPU上运行；另一部分，用原本的VS（我使用的编译器是Visual Studio）编译，在CPU上跑。<br><img src="http://images2015.cnblogs.com/blog/917758/201605/917758-20160505212820888-1718051162.png" alt="Nvcc的编译过程"><br>Cuda C是支持C/C++语言的。它只对C语言做了一个很小的扩展并且提供了一个C runtime library.<br>想要知道Cuda是怎么运行的，我们首先要知道Cuda程序的编译过程。</p>
+<h4 id="NVCC-的工作流主要分下面几步："><a href="#NVCC-的工作流主要分下面几步：" class="headerlink" title="NVCC 的工作流主要分下面几步："></a><em>NVCC</em> 的工作流主要分下面几步：</h4><p>1，将程序中的host code 和 device code 区别开来。<br>2，将device code进行转化可装配形式（assembly form (PTX code)），进而转化成2进制流，用于交给GPU处理。<br>3，将Host code中不符合C语言标准的代码进行替换，然后按照正常的编译过程进行编译链接，在CPU中处理。</p>
+<h4 id="Kernel-核函数"><a href="#Kernel-核函数" class="headerlink" title="Kernel 核函数"></a><em>Kernel</em> 核函数</h4><pre><code>核函数是作用在GPU上，用____global____定义，相当于是cuda提供给C/C++的一个接口，每次可以同时调用多个核函数，每个线程都会执行这个核函数，线程块和线程的数量可以自己根据计算的规模和硬件条件来设定。核函数是cuda编程的核心，在之后的例子中我们也能看到。
+</code></pre><h4 id="Initialization-初始化过程："><a href="#Initialization-初始化过程：" class="headerlink" title="Initialization 初始化过程："></a><em>Initialization</em> 初始化过程：</h4><pre><code>一般来说，Cuda并没有一个明确的开始标识，当第一个runtime function被调用的时候，GPU section就被初始化了。在初始化的过程中，会创建一个cuda contexet，初始创建的这个cuda环境是主要环境，被所有的host所共享。*cudaDeviceReset()*可以destory当前的上下文，直至下一个runtime function被调用时，将重新创建primary context。
+</code></pre><h4 id="Device-Memory-设备内存："><a href="#Device-Memory-设备内存：" class="headerlink" title="Device Memory 设备内存："></a><em>Device Memory</em> 设备内存：</h4><pre><code>设备内存相当于是GPU中的内存，一般的分配方法有两种，线性内存或者cuda arrays，其中cuda arrays是和纹理内存相关的，我们后续再谈。
+线性内存通常使用*cudaMalloc()*分配，*cudaFree()*释放，*cudaMemcpy()*在主机和设备之间传递数据。
+</code></pre><h3 id="我的第一个Cuda程序"><a href="#我的第一个Cuda程序" class="headerlink" title="我的第一个Cuda程序"></a>我的第一个Cuda程序</h3><p>给出一个最基本的例子，也是在Visual Studio上创建一个.cu文件时，会自动生成的一个示例代码。</p>
+<p>输入：两个长度一样的数组，假设长度为5；<br>输出：一个结果数组，数组里面的每一个数是2个输入数组里对应位置的和。</p>
+<p>CPU思路，这是一道简单得不能再简单的题，通常CPU中的算法必然是定义一个循环，遍历2个输入数组并将他们对应元素的和相加，得到结果数组。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">for(int i = 0; i &lt; 5; ++i)</div><div class="line">&#123;</div><div class="line">    _c[i] = a[i] + b[i];</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>可以看到，CPU中进行的是五次串行运算。</p>
+<p>那么回到我们想要实现的GPU并行计算。之前也提到过，GPU是通过调用核函数来调用进程的。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"> // Launch a kernel on the GPU with one thread for each element.</div><div class="line">  addKernel&lt;&lt;&lt;1, 5&gt;&gt;&gt;(dev_c, dev_a, dev_b);</div><div class="line">    </div><div class="line">    __global__ void addKernel(int *c, const int *a, const int *b)</div><div class="line">&#123;</div><div class="line">    int i = threadIdx.x;</div><div class="line"></div><div class="line">    c[i] = a[i] + b[i];</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>可以大致想象，我们开启了5个线程，然后通过thread.x来获取所在线程的信息，同时计算结果数组C，以此来实现并行的效果。当然，在GPU中需要单独分配和释放内存，同时数据也会在CPU和GPU中来回传递，这个Cuda都已经为我们提供好了相应的接口，后续我们会继续介绍。</p>
+<h3 id="利用GPU加速Matrix-Multiplication"><a href="#利用GPU加速Matrix-Multiplication" class="headerlink" title="利用GPU加速Matrix Multiplication"></a>利用GPU加速Matrix Multiplication</h3><h4 id="1，矩阵乘法的CPU思路"><a href="#1，矩阵乘法的CPU思路" class="headerlink" title="1，矩阵乘法的CPU思路"></a>1，矩阵乘法的CPU思路</h4><p>在这里我是默认读者已经有基本的矩阵运算基础的。所以不难想到，对于CPU的矩阵乘法算法如下：<br>由于，对于C中的每一个数，都要经过n次乘法运算，因此总的时间复杂度应该是O(n^3)。<br>对于计算两个1024*1024的输入方阵，CPU串行计算时间大概在9000ms左右。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">//CPU version 其中C是结果矩阵，AB是输入矩阵。</div><div class="line">void MatrixMulCPU(float *_C, const float* _A, const float* _B, int WA, int HA, int WB, int HB)</div><div class="line">&#123;</div><div class="line">	if (WA != HB)</div><div class="line">	&#123;</div><div class="line">		printf(&quot;the matrix A and B cannot be multipled!&quot;);</div><div class="line">			exit(0);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	for (int i = 0; i &lt; HA; ++i)</div><div class="line">	&#123;</div><div class="line">		for (int j = 0; j &lt; WB; ++j)</div><div class="line">		&#123;</div><div class="line">			for (int k = 0; k &lt; WA; ++k)</div><div class="line">			&#123;</div><div class="line">				_C[i * WA + j] += _A[i * WA + k] * _B[k * WB + j];</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="2，GPU优化思路。"><a href="#2，GPU优化思路。" class="headerlink" title="2，GPU优化思路。"></a>2，GPU优化思路。</h4><p>借矩阵乘法的GPU算法，我在这里完整地说一下GPU调用核函数的方法。<br>首先申请的是CPU上的内存，也即是host memory。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">   const int width_A = 1024;</div><div class="line">const int height_A = 1024;</div><div class="line">const int width_B = 1024;</div><div class="line">const int height_B = 1024;</div><div class="line"></div><div class="line">float *B = (float *)malloc(sizeof(float) * height_B * width_B);</div><div class="line">float *A = (float *)malloc(sizeof(float) * height_A * width_A);</div><div class="line">float *C = (float *)malloc(sizeof(float) * height_A * width_B);</div></pre></td></tr></table></figure></p>
+<p>我是给了A,B矩阵0-100的随机数。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">//产生随机数生成器</div><div class="line">	srand((unsigned)time(0));</div><div class="line"></div><div class="line">	randomInit(B, height_B * width_B);</div><div class="line">	randomInit(A, height_A * width_A);</div></pre></td></tr></table></figure></p>
+<p>之后申请device memory，并且把A, B所在内存拷贝过GPU上。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">   float *dev_a = 0;</div><div class="line">float *dev_b = 0;</div><div class="line">float *dev_c = 0;</div><div class="line"></div><div class="line">cudaError_t cudaStatus;</div><div class="line">// Choose which GPU to run on, change this on a multi-GPU system.</div><div class="line">   cudaStatus = cudaSetDevice(0);</div><div class="line">   </div><div class="line">   cudaStatus = cudaMalloc((void**)&amp;dev_c, HA * WB * sizeof(float));</div><div class="line">   </div><div class="line">   cudaStatus = cudaMemcpy(dev_a, a, HA * WA * sizeof(float), cudaMemcpyHostToDevice);</div><div class="line">   cudaStatus = cudaMemcpy(dev_b, b, HB * WB * sizeof(float), cudaMemcpyHostToDevice);</div></pre></td></tr></table></figure></p>
+<p>到这一步后，我们的准备工作就算是做好了，之后的工作是自己来设定，我们需要在GPU上开启多少个线程，这个你可以把它也视为核函数的一个参数，并且把这些device上的内存地址当作参数传递给核函数。</p>
+<p>在这个基本的GPU算法中，我们为C的每一行每一列都设置一个线程。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">//为每一个C[i][j]设置一个线程进行计算</div><div class="line">int block_size = 16;</div><div class="line"></div><div class="line">dim3 Threads(block_size, block_size);</div><div class="line">dim3 Blocks(WB / block_size, HA / block_size);</div><div class="line"></div><div class="line">//用这个方式来调用核函数</div><div class="line">MatrixMulGPU_1 &lt;&lt; &lt;Blocks, Threads &gt;&gt;&gt;(dev_c, dev_a, dev_b, WA, WB);</div></pre></td></tr></table></figure></p>
+<p>核函数，我们通过blockIdx和threadIdx索引获得当前是哪个线程，来计算它所负责的部分。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">__global__ void MatrixMulGPU_1(float *c, const float *a, const float *b, unsigned int WA, unsigned int WB)</div><div class="line">&#123;</div><div class="line">	float sum = 0;</div><div class="line">	//找出该线程所在的行和列</div><div class="line">	int row = blockIdx.y * blockDim.y + threadIdx.y;</div><div class="line">	int col = blockIdx.x * blockDim.x + threadIdx.x;</div><div class="line"></div><div class="line">	//线程Thread(row, col)负责计算C(row, col)</div><div class="line">	for (int i = 0; i &lt; WB; ++i)</div><div class="line">	&#123;</div><div class="line">		sum += a[row * WA + i] * b[i * WB + col];</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	c[row * WB + col] = sum;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>可以看到，每个线程只进行了N次运算，而每个线程之前是并行的，所以时间理论上只是O(n)，虽然在拷贝内存上还需要花费一些时间，但是从O(n^3)-&gt;O(n)这个提升也是巨大的，对时间的统计数据显示也是如此。从9000ms提升到50ms左右。</p>
+<h3 id="优化政策1，shared-memory"><a href="#优化政策1，shared-memory" class="headerlink" title="优化政策1，shared memory"></a>优化政策1，shared memory</h3><p>那么在实现了基本的矩阵GPU算法后，我们还有没有什么方法继续优化我们的算法，使得速度进一步提高呢？结果是肯定的。在之前的算法中，我们的每一个C[i][j]都算了n次，而在这n次取数的过程中，还有我们可以做的很多事情。首先我们可以对每一行每一列进行细分，划分成更细的block_size大小（可以自己来设定），然后再计算每个block_size*block_size时，我们设计一个共享区，然后让数的计算存这个共享区中取数，就可以减少取数的时间。下面是相应的代码，可以在英伟达的标准实例代码中找到：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div></pre></td><td class="code"><pre><div class="line">template&lt;int BLOCK_SIZE&gt; __global__ void MatrixMulGPU_2(float *c, const float *a, const float *b, unsigned int WA, unsigned int WB)</div><div class="line">&#123;</div><div class="line">	// Block index</div><div class="line">	int bx = blockIdx.x;</div><div class="line">	int by = blockIdx.y;</div><div class="line"></div><div class="line">	// Thread index</div><div class="line">	int tx = threadIdx.x;</div><div class="line">	int ty = threadIdx.y;</div><div class="line"></div><div class="line">	// Index of the first sub-matrix of A processed by the block</div><div class="line">	int aBegin = WA * BLOCK_SIZE * by;</div><div class="line"></div><div class="line">	// Index of the last sub-matrix of A processed by the block</div><div class="line">	int aEnd = aBegin + WA - 1;</div><div class="line"></div><div class="line">	// Step size used to iterate through the sub-matrices of A</div><div class="line">	int aStep = BLOCK_SIZE;</div><div class="line"></div><div class="line">	// Index of the first sub-matrix of B processed by the block</div><div class="line">	int bBegin = BLOCK_SIZE * bx;</div><div class="line"></div><div class="line">	// Step size used to iterate through the sub-matrices of B </div><div class="line">	int bStep = BLOCK_SIZE * WB;</div><div class="line"></div><div class="line">	// Csub is used to store the element of the block sub-matrix</div><div class="line">	// that is computed by the thread</div><div class="line">	float Csub = 0;</div><div class="line"></div><div class="line">	// Loop over all the sub-matrices of A and B</div><div class="line">	// required to compute the block sub-matrix</div><div class="line">	for (int i = aBegin, j = bBegin;</div><div class="line">		i &lt;= aEnd;</div><div class="line">		i += aStep, j += bStep)</div><div class="line">	&#123;</div><div class="line"></div><div class="line">		// Declaration of the shared memory array As used to</div><div class="line">		// store the sub-matrix of A</div><div class="line">		__shared__ float As[BLOCK_SIZE][BLOCK_SIZE];</div><div class="line"></div><div class="line">		// Declaration of the shared memory array Bs used to</div><div class="line">		// store the sub-matrix of B</div><div class="line">		__shared__ float Bs[BLOCK_SIZE][BLOCK_SIZE];</div><div class="line"></div><div class="line">		// Load the matrices from device memory</div><div class="line">		// to shared memory; each thread loads</div><div class="line">		// one element of each matrix</div><div class="line">		As[ty][tx] = a[i + WA * ty + tx];</div><div class="line">		Bs[ty][tx] = b[j + WB * ty + tx];</div><div class="line"></div><div class="line">		// Synchronize to make sure the matrices are loaded</div><div class="line">		__syncthreads();</div><div class="line"></div><div class="line">		// Multiply the two matrices together;</div><div class="line">		// each thread computes one element</div><div class="line">		// of the block sub-matrix</div><div class="line">#pragma unroll</div><div class="line"></div><div class="line">		for (int k = 0; k &lt; BLOCK_SIZE; ++k)</div><div class="line">		&#123;</div><div class="line">			Csub += As[ty][k] * Bs[k][tx];</div><div class="line">		&#125;</div><div class="line"></div><div class="line">		// Synchronize to make sure that the preceding</div><div class="line">		// computation is done before loading two new</div><div class="line">		// sub-matrices of A and B in the next iteration</div><div class="line">		__syncthreads();</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	// Write the block sub-matrix to device memory;</div><div class="line">	// each thread writes one element</div><div class="line">	int k = WB * BLOCK_SIZE * by + BLOCK_SIZE * bx;</div><div class="line">	c[k + WB * ty + tx] = Csub;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>其中<em>syncthreads()</em>是用于保证同步的，每一个线程在运行到这一步时，都会停下来等待，直至所有进程都进行到这才会继续下去，以此来保证同步。</p>
+<h3 id="优化政策2，-Texture-Memory"><a href="#优化政策2，-Texture-Memory" class="headerlink" title="优化政策2， Texture Memory"></a>优化政策2， Texture Memory</h3><p>纹理这一块，我的理解是，一般的内存都是线性存放的，不论是二维或者是三维，但存放的本质就是串行线性。故在访问例如 a[1][2]和a[1][3]时，比访问a[1][2]和a[2][2]时，后者的耗时要多一些。但对于纹理，就不会出现这样的问题，以此来提高访问效率。</p>
+<p>首先，先声明纹理<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">texture&lt;float, 2, cudaReadModeElementType&gt; texA;</div><div class="line">texture&lt;float, 2, cudaReadModeElementType&gt; texB;</div></pre></td></tr></table></figure></p>
+<p>然后以cudaArray为介质，将内存中的数放到纹理中<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">//GPU mode3 with texture memory</div><div class="line"></div><div class="line">		cudaChannelFormatDesc channelDescA = cudaCreateChannelDesc((int)sizeof(float) * 8, 0, 0, 0, cudaChannelFormatKindFloat);</div><div class="line">		cudaChannelFormatDesc channelDescB = cudaCreateChannelDesc((int)sizeof(float) * 8, 0, 0, 0, cudaChannelFormatKindFloat);</div><div class="line"></div><div class="line">		cudaArray* mat_A;</div><div class="line">		cudaArray* mat_B;</div><div class="line"></div><div class="line">		cudaMallocArray(&amp;mat_A, &amp;channelDescA, width_A, height_A);</div><div class="line">		cudaMallocArray(&amp;mat_B, &amp;channelDescB, width_B, height_B);</div><div class="line"></div><div class="line">		cudaMemcpyToArray(mat_A, 0, 0, A, sizeof(float) * height_A * width_A, cudaMemcpyHostToDevice);</div><div class="line">		cudaMemcpyToArray(mat_B, 0, 0, B, sizeof(float) * height_B * width_B, cudaMemcpyHostToDevice);</div></pre></td></tr></table></figure></p>
+<p>接着设置纹理的相关属性<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">texA.addressMode[0] = cudaAddressModeWrap;</div><div class="line">texA.addressMode[1] = cudaAddressModeWrap;</div><div class="line">texA.filterMode = cudaFilterModePoint;</div><div class="line">texA.normalized = false;</div><div class="line">texB.addressMode[0] = cudaAddressModeWrap;</div><div class="line">   texB.addressMode[1] = cudaAddressModeWrap;</div><div class="line">texB.filterMode = cudaFilterModePoint;</div><div class="line">texB.normalized = false;</div></pre></td></tr></table></figure></p>
+<p>最后纹理的相关核函数如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">__global__ void MatrixMul(float *c, unsigned int w, unsigned int h)</div><div class="line">&#123;</div><div class="line">	float sum = 0;</div><div class="line">	//找出该线程所在的行和列</div><div class="line">	int row = blockIdx.y * blockDim.y + threadIdx.y;</div><div class="line">	int col = blockIdx.x * blockDim.x + threadIdx.x;</div><div class="line"></div><div class="line">	/*</div><div class="line">	//计算纹理坐标</div><div class="line">	float u = row / (float)w;</div><div class="line">	float v = col / (float)h;</div><div class="line">	//线程Thread(row, col)负责计算C(row, col)</div><div class="line">	u -= 0.5f;</div><div class="line">	v -= 0.5f;</div><div class="line">	*/</div><div class="line"></div><div class="line">	for (int i = 0; i &lt; w; ++i)</div><div class="line">	&#123;</div><div class="line">		sum += tex2D(texA, i, row) * tex2D(texB, col, i);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	c[row * w + col] = sum;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>可以看到用2维纹理来访问我们相关的矩阵，是非常方便的，只需要用tex2D()就行。</p>
+<p>最后是这些方法的截图。<br><img src="http://ww4.sinaimg.cn/mw690/a207cfd8gw1f4448xxjsyj20it0cbwfx.jpg" alt="结果截图"></p>
+<p>注：在release版本中，使用texture优化的时间比正常的GPU算法要慢，这个现象由于矩阵乘法本身对取数是 有一定规律性的，而texture优化对一些随机访问内存算法比较有效，在此我们不深究，只为学习纹理内存用。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/10/10/hello-world/" rel="next" title="Hello World">
+                <i class="fa fa-chevron-left"></i> Hello World
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/11/04/enumeration/" rel="prev" title="枚举">
+                枚举 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars1.githubusercontent.com/u/13774767?v=3&s=466"
+               alt="Storm han" />
+          <p class="site-author-name" itemprop="name">Storm han</p>
+          <p class="site-description motion-element" itemprop="description">拿梦想做赌注，我怎么舍得输？</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">8</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/stormHan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/han-jia-wei" target="_blank" title="zhihu">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  zhihu
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#结构目录"><span class="nav-number">1.</span> <span class="nav-text">结构目录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Cuda是什么"><span class="nav-number">1.1.</span> <span class="nav-text">Cuda是什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Cuda程序的编译过程"><span class="nav-number">1.2.</span> <span class="nav-text">Cuda程序的编译过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#NVCC-的工作流主要分下面几步："><span class="nav-number">1.2.1.</span> <span class="nav-text">NVCC 的工作流主要分下面几步：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Kernel-核函数"><span class="nav-number">1.2.2.</span> <span class="nav-text">Kernel 核函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Initialization-初始化过程："><span class="nav-number">1.2.3.</span> <span class="nav-text">Initialization 初始化过程：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Device-Memory-设备内存："><span class="nav-number">1.2.4.</span> <span class="nav-text">Device Memory 设备内存：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#我的第一个Cuda程序"><span class="nav-number">1.3.</span> <span class="nav-text">我的第一个Cuda程序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#利用GPU加速Matrix-Multiplication"><span class="nav-number">1.4.</span> <span class="nav-text">利用GPU加速Matrix Multiplication</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1，矩阵乘法的CPU思路"><span class="nav-number">1.4.1.</span> <span class="nav-text">1，矩阵乘法的CPU思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2，GPU优化思路。"><span class="nav-number">1.4.2.</span> <span class="nav-text">2，GPU优化思路。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#优化政策1，shared-memory"><span class="nav-number">1.5.</span> <span class="nav-text">优化政策1，shared memory</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#优化政策2，-Texture-Memory"><span class="nav-number">1.6.</span> <span class="nav-text">优化政策2， Texture Memory</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Storm han</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

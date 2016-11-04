@@ -1,0 +1,607 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Fighting Life!" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="前言  最近发现了coursera上比较好的几门课，是来自北京大学的程序设计与算法系列课程，于是想重新回顾一下C++这门及其注重效率的语言的一些特性。同时对自己的相关知识查漏补缺，以及做一些记录。course 
+目录
+1， 内联成员函数和缺省参数的函数2， 构造函数
+
+内联成员函数和缺省参数的函数之前我们知道，内联函数存在的目的是，当一些比较简单又调用次数特别多的函数的时候，为了减少调用函数入栈时">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++ 程序设计思想基础">
+<meta property="og:url" content="http://yoursite.com/2016/11/04/C++ 程序设计思想（I）/index.html">
+<meta property="og:site_name" content="Han's Blog Cell">
+<meta property="og:description" content="前言  最近发现了coursera上比较好的几门课，是来自北京大学的程序设计与算法系列课程，于是想重新回顾一下C++这门及其注重效率的语言的一些特性。同时对自己的相关知识查漏补缺，以及做一些记录。course 
+目录
+1， 内联成员函数和缺省参数的函数2， 构造函数
+
+内联成员函数和缺省参数的函数之前我们知道，内联函数存在的目的是，当一些比较简单又调用次数特别多的函数的时候，为了减少调用函数入栈时">
+<meta property="og:image" content="http://ww1.sinaimg.cn/mw690/a207cfd8jw1f4bec8lspsj20od0djwi0.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/mw690/a207cfd8jw1f4bec7fzfxj20jr0dsgo8.jpg">
+<meta property="og:updated_time" content="2016-11-04T12:58:37.923Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="C++ 程序设计思想基础">
+<meta name="twitter:description" content="前言  最近发现了coursera上比较好的几门课，是来自北京大学的程序设计与算法系列课程，于是想重新回顾一下C++这门及其注重效率的语言的一些特性。同时对自己的相关知识查漏补缺，以及做一些记录。course 
+目录
+1， 内联成员函数和缺省参数的函数2， 构造函数
+
+内联成员函数和缺省参数的函数之前我们知道，内联函数存在的目的是，当一些比较简单又调用次数特别多的函数的时候，为了减少调用函数入栈时">
+<meta name="twitter:image" content="http://ww1.sinaimg.cn/mw690/a207cfd8jw1f4bec8lspsj20od0djwi0.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/11/04/C++ 程序设计思想（I）/"/>
+
+
+  <title> C++ 程序设计思想基础 | Han's Blog Cell </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Han's Blog Cell</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">Hi, My world!</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                C++ 程序设计思想基础
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-11-04T19:36:21+08:00" content="2016-11-04">
+              2016-11-04
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>  最近发现了coursera上比较好的几门课，是来自北京大学的程序设计与算法系列课程，于是想重新回顾一下C++这门及其注重效率的语言的一些特性。同时对自己的相关知识查漏补缺，以及做一些记录。<a href="http://jianshu.io" target="_blank" rel="external">course </a></p>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><blockquote>
+<p>1， 内联成员函数和缺省参数的函数<br>2， 构造函数</p>
+</blockquote>
+<h3 id="内联成员函数和缺省参数的函数"><a href="#内联成员函数和缺省参数的函数" class="headerlink" title="内联成员函数和缺省参数的函数"></a>内联成员函数和缺省参数的函数</h3><p>之前我们知道，内联函数存在的目的是，当一些比较简单又调用次数特别多的函数的时候，为了减少调用函数入栈时候的额外开销，我们设置一种内联函数，编译器在碰到内联函数的时候，直接把函数的代码粘过来运行。这是C++这样一种追求极致效率的语言的一种特殊机制。<br>那么内联成员函数的声明方法：<br>1， inline + 成员函数<br>2，整个函数体出现在类定义内部，也就是说当你把函数体写在类定义里面时，这些默认为内联函数。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">class B&#123;</div><div class="line">    inline void func1();</div><div class="line">    void func2()&#123;&#125;;</div><div class="line">    void init(int x = 1, int y = 2);</div><div class="line">    private: int x, int y;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>上面的func1()和func2()都是内联函数。</p>
+<p>而缺省参数的路由是在函数的参数列表中已经给一些参数一个默认值，如之上的init()函数。那么当你调用函数的参数不够时，剩下的（靠近右边的）用默认参数。那么这种设定有什么用呢？是当你在开发较为简单的功能的时候，考虑到程序的可扩展性，即之后可能还会将某些现在是固定值的变量变成一个可控变量。则可以用到这种技术。</p>
+<p>用重载函数和缺省参数的函数时，一定要避免函数的二义性。</p>
+<h3 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h3><p>1， 一个类可以有多个构造函数。<br>2， 当定义了构造函数，则编译器不生成默认的无参数的构造函数（肯定会有一个构造函数）<br>3， 不分配内存，是在new一个对象时对这个对象进行作用。</p>
+<h3 id="复制构造函数"><a href="#复制构造函数" class="headerlink" title="复制构造函数"></a>复制构造函数</h3><p>只有一个参数，即对同类对象的引用。形如X::X( X&amp; )或者X::X(const X&amp; )。<br>如果没有定义复制构造函数，那么编译器生成默认的复制构造函数。（所以当我们不写构造函数的时候，编译器会至少为我们写两个构造函数）而当你自己写了一个复制构造函数的时候，编译器就不会帮你生成复制构造函数了。</p>
+<p>注意：<br>1，当初始化的时候调用 A a1 = a2;这一句是初始化语句。a1 = a2这一句是赋值语句，体会这两者的不同。<br>2， 当一个函数中有一个参数是类A的对象，那么当该函数被调用时，类A的复制构造函数将会被调用（对形参）。<br><strong>这个时候如果你自己写了这个类的复制构造函数，那么可能这个时候实参和形参没有经历过复制工作。</strong><br>3，如果函数的返回值是类A的对象时，则函数返回式，A的复制构造函数被调用。</p>
+<p>在什么时候要自己写复制构造函数。（to be continued..）<br>引用作为参数时是没有生成对象的，也即不会有复制的过程，也不会调用复制构造函数。</p>
+<h3 id="类型转换构造函数"><a href="#类型转换构造函数" class="headerlink" title="类型转换构造函数"></a>类型转换构造函数</h3><p>目的：实现类型的自动转换。<br>特点：只有一个参数，不是复制构造函数。<br>编译器自动调用-&gt;转换构造函数-&gt;建立一个临时对象。<br><img src="http://ww1.sinaimg.cn/mw690/a207cfd8jw1f4bec8lspsj20od0djwi0.jpg" alt=""></p>
+<h3 id="析构函数"><a href="#析构函数" class="headerlink" title="析构函数"></a>析构函数</h3><p>名字与类名相同。<br>前面加上~<br>没有返回值，没有参数，只有一个。</p>
+<p>在对象消亡时自动被调用。用于做“善后”工作，释放内存等。</p>
+<p>注意：对象数组的生命期结束时，每个元素的析构函数都会被调用。而对象的生命作用域是离他最近的一对花括号。当跳出作用域时，就会调用析构函数。当然，<strong>static静态对象和全局对象则在最后依次被消亡。</strong></p>
+<h3 id="静态成员变量和静态成员函数"><a href="#静态成员变量和静态成员函数" class="headerlink" title="静态成员变量和静态成员函数"></a>静态成员变量和静态成员函数</h3><p>1，静态成员对象和普通成员对象的本质区别是，普通成员变量每个对象有格子的一份，而静态成员变量一共就一份，为所有对象共享。这也是sizeof不会算static变量的原因。<br>2，普通成员函数必须作用于某个对象，而静态成员函数并不具体作用于某个对象。<br>3，因此静态成员不需要通过对象就能访问。</p>
+<p>如果访问静态成员？<br><img src="http://ww1.sinaimg.cn/mw690/a207cfd8jw1f4bec7fzfxj20jr0dsgo8.jpg" alt=""><br>不管怎么访问，但它都不属于某个特定的对象。</p>
+<p><strong>静态成员变量本质上是全局变量，哪怕一个对象都不存在，类的静态成员变量也存在；</strong><br><strong>静态成员函数本质上是全局函数；</strong><br><strong>设置静态成员这种机制的目的是将和某些类紧密相关的全局变量和函数写到类里面，看上去像一个整体，易于维护和理解。（换句话说是对全局变量分类）</strong></p>
+<p>注意：<br>1，在C++中，必须在定义类的文件中对静态成员变量进行一次说明或初始化，否则编译能通过链接不能通过。<br>2，在静态成员函数中，不能访问非静态成员变量，也不能调用非静态成员函数。</p>
+<h3 id="成员对象和封闭类"><a href="#成员对象和封闭类" class="headerlink" title="成员对象和封闭类"></a>成员对象和封闭类</h3><p>成员对象：一个类的成员变量是另一个类的对象。<br>那么包含成员对象的类叫做<strong>封闭类（Enclosing）</strong>.<br>封闭类必须要自己定义构造函数，否则就会编译报错。所以要通过<strong>初始化列表</strong>来实现。</p>
+<p><strong>初始化列表</strong><br>类名::构造函数（参数表）:成员变量1(参数表)，成员变量2(参数表),…<br>{<br>}<br>而成员对象初始化列表中的参数.1可以是任意复杂的表达式.2函数/变量等。</p>
+<p>当封闭类对象生成时，先执行所有成员对象的构造函数，再执行封闭类的构造函数。（顺序和成员对象在类中的说明顺序一致，和初始化列表无关。）<br>当封闭类对象消亡时，先执行封闭类的析构函数，再执行所有成员对象的析构函数。<br><strong>析构函数顺序和构造函数的调用顺序相反</strong></p>
+<h3 id="this指针"><a href="#this指针" class="headerlink" title="this指针"></a>this指针</h3><p>作用：指向成员函数所作用的对象。是一种特殊的指针，相当于指向一个对象入口的指针。<br>注意，在静态成员函数中是不能使用this指针的。</p>
+<h3 id="常量对象，常量成员函数"><a href="#常量对象，常量成员函数" class="headerlink" title="常量对象，常量成员函数"></a>常量对象，常量成员函数</h3><p>如果不希望某个对象的值被被改变，则定义该对象的时候可以再前面加<strong>const</strong>关键字。<br>而常量成员函数在执行期间不应该修改其所作用的对象。因此常量成员函数不能修改成员变量的值（静态成员变量除外），也不能调用同类的非常量成员函数（静态成员函数除外）。</p>
+<p>注意：如果两个名字一样的函数一个定义了const一个没有定义，那么算是重载而不是重复定义。分别使用在const对象和非const对象上。<br>在引用作为参数的是很常用的，而在有些情况下，为了确保对象不会被改变可以使用常引用。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/04/enumeration/" rel="next" title="枚举">
+                <i class="fa fa-chevron-left"></i> 枚举
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/11/04/C++程序设计--运算符重载/" rel="prev" title="C++程序设计--运算符重载">
+                C++程序设计--运算符重载 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars1.githubusercontent.com/u/13774767?v=3&s=466"
+               alt="Storm han" />
+          <p class="site-author-name" itemprop="name">Storm han</p>
+          <p class="site-description motion-element" itemprop="description">拿梦想做赌注，我怎么舍得输？</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">8</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/stormHan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/han-jia-wei" target="_blank" title="zhihu">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  zhihu
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目录"><span class="nav-number">2.</span> <span class="nav-text">目录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#内联成员函数和缺省参数的函数"><span class="nav-number">2.1.</span> <span class="nav-text">内联成员函数和缺省参数的函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#构造函数"><span class="nav-number">2.2.</span> <span class="nav-text">构造函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#复制构造函数"><span class="nav-number">2.3.</span> <span class="nav-text">复制构造函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类型转换构造函数"><span class="nav-number">2.4.</span> <span class="nav-text">类型转换构造函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#析构函数"><span class="nav-number">2.5.</span> <span class="nav-text">析构函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#静态成员变量和静态成员函数"><span class="nav-number">2.6.</span> <span class="nav-text">静态成员变量和静态成员函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#成员对象和封闭类"><span class="nav-number">2.7.</span> <span class="nav-text">成员对象和封闭类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#this指针"><span class="nav-number">2.8.</span> <span class="nav-text">this指针</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常量对象，常量成员函数"><span class="nav-number">2.9.</span> <span class="nav-text">常量对象，常量成员函数</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Storm han</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
