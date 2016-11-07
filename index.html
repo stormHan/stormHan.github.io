@@ -239,6 +239,121 @@
             
               
                 
+                <a class="post-title-link" href="/2016/11/07/Effective C++ --让自己习惯C++(01)/" itemprop="url">
+                  Effective C++ --让自己习惯C++(01)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-11-07T20:28:48+08:00" content="2016-11-07">
+              2016-11-07
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="一，View-C-as-a-federation-of-languages-01"><a href="#一，View-C-as-a-federation-of-languages-01" class="headerlink" title="一，View C++ as a federation of languages.(01)"></a>一，View C++ as a federation of languages.(01)</h1><p>##主要内容<br>将C++视为一个由相关语言组成的语言联邦。<br>在某个次语言(sublanguage)中，各种守则与通例都倾向于简单，直观。然而当从一个次语言转移到另一个次语言中时，守则可能改变。而其主要的次语言总共有四个：</p>
+<blockquote>
+<blockquote>
+<p>1，C语言。C++以C为基础，很多的概念来源于C，blocks, statements, preprocessor, built-in data types, arrays, pointers。但C也有其局限性：没有模板（templates），没有异常（exceptions），没有重载（overloading）</p>
+<p>2，Object-Oriented C++。这一部分是面向对象设计古典守则在C++上最直接的实施。也是C with classes所诉求的：classes（包括构造函数，析构函数），封装（encapsulation），继承（inheritance），多态（polymorphism），virtual函数（动态绑定）。</p>
+<p>3，Template C++。C++的泛型编程，也是大多数程序员经验最少的部分。Template相关考虑与设计已经弥漫整个C++，良好编程守则中“唯template”适用的特殊条款并不罕见。</p>
+<p>4，STL。一个template程序库，对容器（containers），迭代器（iterators），算法（algorithms）已经函数对象的规约有极佳的紧密配合与协调。</p>
+</blockquote>
+</blockquote>
+<p>##总结<br>记住这四个次语言，当你从某个次语言切换到另一个，导致高效变成守则要求你改变策略时，不要感到惊讶。例如对内置类型而言pass-by-value通常比pass-by-reference高效，但当你从C part of C++移往Object-Oriented-C++时，由于用户自定义构造函数和析构函数的存在，pass-by-reference-to-const往往更好，运用TemplateC++时尤其如此，因为彼时你甚至不知道所处理的对象的类型。然而一旦跨入STL你就会了解，迭代器和函数都是在C指针之上塑造的，所以对STL的迭代器和函数对象而言，旧式的C pass-by-value守则再次适用。</p>
+<p>因此C++是四个次语言组成的语言联邦政府，每个语言都有自己的规约。记住这四个次语言你就会发现C++容易理解很多。</p>
+<h1 id="Prefer-consts-enums-and-inlines-to-defines-02"><a href="#Prefer-consts-enums-and-inlines-to-defines-02" class="headerlink" title="Prefer consts, enums, and inlines to #defines.(02)"></a>Prefer consts, enums, and inlines to #defines.(02)</h1><p>##主要内容<br><strong>尽量减少#define的使用，多让编译器去工作而不是让预处理器工作！！</strong><br>原因一：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">#define RATIO 1.635</div><div class="line">//也许从未被编译器看见而被预处理器拿走从而会报错。</div><div class="line"></div><div class="line">const double Ratio = 1.635；//这样则不会出问题</div></pre></td></tr></table></figure>
+<p> 在声明常量（通常放在头文件里）的时候需要注意两个问题<br> 1， 常量字符串<br> const char* const authorNmae = “Scott Meyers”<br> 2，类常量，不需要每个对象都有自己的常量，故为静态。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">class GamePlayer&#123;</div><div class="line"> private:</div><div class="line">    static const int Number = 5;</div><div class="line">    int scores[Number];</div><div class="line">    ...</div><div class="line"> &#125;</div></pre></td></tr></table></figure></p>
+<p>注意，这里的number只是声明式，（相当于函数只声明了还没实现）。如果需要取这个常量的地址，则需要在实现文件里写它的定义式。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">const int GamePlayer::Number; //Number 的定义，此时不需要再赋值</div></pre></td></tr></table></figure></p>
+<p>原因二：</p>
+<p> #define是不重视域的。这意味着#define不仅不能够用来定义class的专属常量，而且不能提供任何的封装性。</p>
+<p> 原因三：<br> 不推荐使用预处理器来实现宏（macros）。宏看起来很像函数，其优点是不会招致函数调用的额外开销。如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">#define CALL_WITH_MAX(a, b) f((a)&gt;(b) &gt; (a) : (b))</div></pre></td></tr></table></figure></p>
+<p><strong>这种宏是有很多缺点的！</strong><br>首先，再你写出这种宏的时候，你必须要为每一个实参加上小括号！否则某人在<strong>表达式</strong>中调用这个宏就会遭遇麻烦。但纵然如此，也不可避免会出现麻烦。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">int a = 5;</div><div class="line">int b = 0;</div><div class="line"></div><div class="line">   CALL_WITH_MAX(++a, b);        //a = 7 </div><div class="line">CALL_WITH_MAX(++a, b + 10);   //a = 6</div></pre></td></tr></table></figure></p>
+<p>结果甚至会因为比较的值不同而不同，相当于程序错误。（其原因是参数被核算多次）。<br>而推荐使用的是template inline函数，既可以获得宏带来的效率以及一般函数的所有可预料行为和类型安全性。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">template &lt;typename T&gt;</div><div class="line">inline void callWithMax(const T&amp; a, const T&amp; b)</div><div class="line">&#123;</div><div class="line">    f(a &gt; b ? a : b);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>有了consts, enums和inlines，我们对于预处理器（特别是#define）的需求降低了，但并非完全消除。#include依然是必需品，而#ifdef / #ifndef也继续扮演着控制编译的重要角色。目前还不到预处理全面而退的时候，但你应该明确地给予它更长更频繁的假期！</p>
+<p>##总结：<br><strong>对于单纯常量，最好以const对象或者enum替换#define。</strong><br><strong>对于形似函数的宏，最好改用inline函数替代#define。</strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/11/07/Trie树/" itemprop="url">
                   Trie树
                 </a>
@@ -1261,7 +1376,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-count">10</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
