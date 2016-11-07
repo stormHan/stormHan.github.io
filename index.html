@@ -239,6 +239,103 @@
             
               
                 
+                <a class="post-title-link" href="/2016/11/07/Trie树/" itemprop="url">
+                  Trie树
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-11-07T11:15:52+08:00" content="2016-11-07">
+              2016-11-07
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Trie(字典树)可以保存一些字符串-&gt;值得对应关系，其实它和hashmap的功能相同，以key-value映射的方式用空间换时间。（只不过Trie的key往往就是字符串）</p>
+<p>Trie 的强大之处就在于它的时间复杂度。它的插入和查询时间复杂度都为 O(k) ，其中 k 为 key（也就是字符串的size） 的长度，与 Trie 中保存了多少个元素无关。Hash 表号称是 O(1) 的，但在计算 hash 的时候就肯定会是 O(k) ，而且还有碰撞之类的问题；Trie 的缺点是空间消耗很高。</p>
+<p>Trie树有一些特性：<br>1）根节点不包含字符，除根节点外每一个节点都只包含一个字符。<br>2）从根节点到某一节点，路径上经过的字符连接起来，为该节点对应的字符串。<br>3）每个节点的所有子节点包含的字符都不相同。<br>4）如果字符的种数为n，则每个结点的出度为n，这也是空间换时间的体现，浪费了很多的空间。<br>5）插入查找的复杂度为O(n)，n为字符串长度。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div></pre></td><td class="code"><pre><div class="line">struct Trie_node</div><div class="line">&#123;</div><div class="line">	bool exist;</div><div class="line">	Trie_node* next[26];</div><div class="line">	int count;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">Trie_node* createTrie()</div><div class="line">&#123;</div><div class="line">	Trie_node* root = new Trie_node();</div><div class="line">	root-&gt;count = 0;</div><div class="line">	root-&gt;exist = false;</div><div class="line">	memset(root-&gt;next, 0, sizeof(root-&gt;next));</div><div class="line"></div><div class="line">	return root;</div><div class="line">&#125;</div><div class="line"></div><div class="line">void deleteTrie(Trie_node* root)</div><div class="line">&#123;</div><div class="line">	for (int i = 0; i &lt; 26; ++i)</div><div class="line">	&#123;</div><div class="line">		if (root-&gt;next[i] != NULL)</div><div class="line">			deleteTrie(root-&gt;next[i]);</div><div class="line">	&#125;</div><div class="line">	delete root;</div><div class="line">&#125;</div><div class="line"></div><div class="line">void insert(Trie_node* root, string word)</div><div class="line">&#123;</div><div class="line">	int nb = word.size();</div><div class="line">	if (nb == 0) return;</div><div class="line"></div><div class="line">	Trie_node* pt = root;</div><div class="line">	root-&gt;count++;</div><div class="line">	for (int i = 0; i &lt; nb; ++i)</div><div class="line">	&#123;</div><div class="line">		int p = word[i] - &apos;a&apos;;</div><div class="line">		if (pt-&gt;next[p] == NULL)</div><div class="line">		&#123;</div><div class="line">			Trie_node* tt = new Trie_node();</div><div class="line">			tt-&gt;count = 1;</div><div class="line">			memset(tt, NULL, sizeof(tt-&gt;next));</div><div class="line">			if (i == nb - 1)</div><div class="line">				tt-&gt;exist = true;</div><div class="line">			else</div><div class="line">				tt-&gt;exist = false;</div><div class="line">			pt-&gt;next[p] = tt;</div><div class="line">		&#125;</div><div class="line">		else</div><div class="line">		&#123;</div><div class="line">			pt-&gt;next[p]-&gt;count++;</div><div class="line">			if (i == nb - 1)</div><div class="line">				pt-&gt;next[p]-&gt;exist = true;</div><div class="line">		&#125;</div><div class="line">		pt = pt-&gt;next[p];</div><div class="line">	&#125;</div><div class="line">	return;</div><div class="line">&#125;</div><div class="line"></div><div class="line">int find(Trie_node* root, string word)</div><div class="line">&#123;</div><div class="line">	int nb = word.size();</div><div class="line">	if (nb == 0) return 0;</div><div class="line"></div><div class="line">	Trie_node* pt = root;</div><div class="line">	for (int i = 0; i &lt; word.size(); ++i)</div><div class="line">	&#123;</div><div class="line">		int p = word[i] - &apos;a&apos;;</div><div class="line">		if (pt-&gt;next[p] == NULL) return 0;</div><div class="line">		if (i == nb - 1) return pt-&gt;next[p]-&gt;count;</div><div class="line">		else</div><div class="line">			pt = pt-&gt;next[p];</div><div class="line">	&#125;</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line">int Trie_main()</div><div class="line">&#123;</div><div class="line">	int N, M;</div><div class="line">	vector&lt;string&gt; words;</div><div class="line">	vector&lt;string&gt; searches;</div><div class="line"></div><div class="line">	scanf(&quot;%d&quot;, &amp;N);</div><div class="line">	getchar();</div><div class="line">	for (int i = 0; i &lt; N; ++i)</div><div class="line">	&#123;</div><div class="line">		string temp;</div><div class="line">		getline(cin, temp);</div><div class="line">		words.push_back(temp);</div><div class="line">	&#125;</div><div class="line">	scanf(&quot;%d&quot;, &amp;M);</div><div class="line">	getchar();</div><div class="line">	for (int i = 0; i &lt; M; ++i)</div><div class="line">	&#123;</div><div class="line">		string temp;</div><div class="line">		getline(cin, temp);</div><div class="line">		searches.push_back(temp);</div><div class="line">	&#125;</div><div class="line"></div><div class="line"></div><div class="line">	Trie_node* root = createTrie();</div><div class="line">	for (int i = 0; i &lt; words.size(); ++i)</div><div class="line">	&#123;</div><div class="line">		insert(root, words[i]);</div><div class="line">	&#125;</div><div class="line">	for (int i = 0; i &lt; searches.size(); ++i)</div><div class="line">	&#123;</div><div class="line">		printf(&quot;%d\n&quot;, find(root, searches[i]));</div><div class="line">	&#125;</div><div class="line">	deleteTrie(root);</div><div class="line"></div><div class="line">	return 0;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/11/04/C++程序设计---模板/" itemprop="url">
                   C++程序设计---模板
                 </a>
@@ -1164,7 +1261,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">8</span>
+              <span class="site-state-item-count">9</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
