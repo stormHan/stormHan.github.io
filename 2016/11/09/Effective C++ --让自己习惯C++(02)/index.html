@@ -84,23 +84,19 @@
 
 
 
-<meta name="description" content="目的： 提高程序的可扩展性，减少增加代码时的工作量。代价： 每一个有虚函数的对象都会增加四个字节的空间来存放虚函数表（空间开销）。虚函数在查虚函数表的时候会有（时间）开销。
-虚函数在类的定义中，前面有virtual关键字的成员函数就是虚函数。class base{    virtual int get();    }int base::get(){};virtual关键字只用在类定义里的函数声明中">
+<meta name="description" content="一，Use const whenever possible.(03)主要内容const是一个强大的武器，它允许你指定一个语义约束（指定一个“不该被改动”的对象），然后通过编译器来行使这项约束。而我们应该做的事情就是，只要这（某值应该保持不变）是一个事实，那么久该尽可能的说出来，获得编译器的襄助，减少程序出错的可能。
+下面记录一些我觉得自己还不太熟的tips:1，const在*左右分别表示 是指针指">
 <meta property="og:type" content="article">
-<meta property="og:title" content="C++程序设计--多态和虚函数">
-<meta property="og:url" content="http://yoursite.com/2016/11/04/C++程序设计--多态和虚函数/index.html">
+<meta property="og:title" content="Effective C++ --让自己习惯C++(02)">
+<meta property="og:url" content="http://yoursite.com/2016/11/09/Effective C++ --让自己习惯C++(02)/index.html">
 <meta property="og:site_name" content="Han's Blog Cell">
-<meta property="og:description" content="目的： 提高程序的可扩展性，减少增加代码时的工作量。代价： 每一个有虚函数的对象都会增加四个字节的空间来存放虚函数表（空间开销）。虚函数在查虚函数表的时候会有（时间）开销。
-虚函数在类的定义中，前面有virtual关键字的成员函数就是虚函数。class base{    virtual int get();    }int base::get(){};virtual关键字只用在类定义里的函数声明中">
-<meta property="og:image" content="http://ww2.sinaimg.cn/mw690/a207cfd8gw1f4nwq0yglyj20ha0dkdh3.jpg">
-<meta property="og:image" content="http://ww1.sinaimg.cn/mw690/a207cfd8gw1f4nwq1wljej20jj0attaf.jpg">
-<meta property="og:image" content="http://ww4.sinaimg.cn/mw690/a207cfd8gw1f4nwq2oyqmj20na0dldij.jpg">
-<meta property="og:updated_time" content="2016-11-04T12:58:14.338Z">
+<meta property="og:description" content="一，Use const whenever possible.(03)主要内容const是一个强大的武器，它允许你指定一个语义约束（指定一个“不该被改动”的对象），然后通过编译器来行使这项约束。而我们应该做的事情就是，只要这（某值应该保持不变）是一个事实，那么久该尽可能的说出来，获得编译器的襄助，减少程序出错的可能。
+下面记录一些我觉得自己还不太熟的tips:1，const在*左右分别表示 是指针指">
+<meta property="og:updated_time" content="2016-11-09T13:37:47.771Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="C++程序设计--多态和虚函数">
-<meta name="twitter:description" content="目的： 提高程序的可扩展性，减少增加代码时的工作量。代价： 每一个有虚函数的对象都会增加四个字节的空间来存放虚函数表（空间开销）。虚函数在查虚函数表的时候会有（时间）开销。
-虚函数在类的定义中，前面有virtual关键字的成员函数就是虚函数。class base{    virtual int get();    }int base::get(){};virtual关键字只用在类定义里的函数声明中">
-<meta name="twitter:image" content="http://ww2.sinaimg.cn/mw690/a207cfd8gw1f4nwq0yglyj20ha0dkdh3.jpg">
+<meta name="twitter:title" content="Effective C++ --让自己习惯C++(02)">
+<meta name="twitter:description" content="一，Use const whenever possible.(03)主要内容const是一个强大的武器，它允许你指定一个语义约束（指定一个“不该被改动”的对象），然后通过编译器来行使这项约束。而我们应该做的事情就是，只要这（某值应该保持不变）是一个事实，那么久该尽可能的说出来，获得编译器的襄助，减少程序出错的可能。
+下面记录一些我觉得自己还不太熟的tips:1，const在*左右分别表示 是指针指">
 
 
 
@@ -121,10 +117,10 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2016/11/04/C++程序设计--多态和虚函数/"/>
+  <link rel="canonical" href="http://yoursite.com/2016/11/09/Effective C++ --让自己习惯C++(02)/"/>
 
 
-  <title> C++程序设计--多态和虚函数 | Han's Blog Cell </title>
+  <title> Effective C++ --让自己习惯C++(02) | Han's Blog Cell </title>
 </head>
 
 <body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
@@ -244,7 +240,7 @@
             
             
               
-                C++程序设计--多态和虚函数
+                Effective C++ --让自己习惯C++(02)
               
             
           </h1>
@@ -256,8 +252,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-11-04T19:36:52+08:00" content="2016-11-04">
-              2016-11-04
+            <time itemprop="dateCreated" datetime="2016-11-09T21:37:05+08:00" content="2016-11-09">
+              2016-11-09
             </time>
           </span>
 
@@ -284,17 +280,10 @@
       
 
       
-        <p>目的： 提高程序的可扩展性，减少增加代码时的工作量。<br>代价： 每一个有虚函数的对象都会增加四个字节的空间来存放虚函数表（空间开销）。虚函数在查虚函数表的时候会有（时间）开销。</p>
-<h2 id="虚函数"><a href="#虚函数" class="headerlink" title="虚函数"></a>虚函数</h2><p>在类的定义中，前面有<strong>virtual</strong>关键字的成员函数就是虚函数。<br>class base{<br>    <strong>virtual</strong> int get();<br>    }<br>int base::get(){};<br>virtual关键字只用在类定义里的函数声明中，写函数体时不用。<br>构造函数和静态成员函数不能是虚函数。<br>虚函数支持多态。</p>
-<h2 id="多态的表现形式"><a href="#多态的表现形式" class="headerlink" title="多态的表现形式"></a>多态的表现形式</h2><h3 id="一，"><a href="#一，" class="headerlink" title="一，"></a>一，</h3><p>派生类的指针可以赋给基类指针。<br>通过基类指针调用基类和派生类的同名虚函数时，<br>（1）若该指针指向一个基类的对象，那么被调用是基类的虚函数；<br>（2）若指针指向一个派生类的对象，那么被调用的是派生类的虚函数。<br>这种机制就叫做“多态”。</p>
-<h3 id="二，"><a href="#二，" class="headerlink" title="二，"></a>二，</h3><p>派生类的多态可以赋给基类引用。<br>通过基类引用调用基类和派生类的同名虚函数时，<br>（1）若该引用引用的是一个基类的对象，那么被调用的是基类的虚函数；<br>（2）若该引用引用的是一个派生类的对象，那么被调用的是派生类的虚函数。<br>这种机制也是“多态”。</p>
-<p><strong>实际上，我们用一个基类指针数组存放指向各种派生类对象的指针，然后遍历该数组，就能对各个派生类对象做各种操作，是很常用的做法</strong>(例如 pshapes[100])</p>
-<p>同时，在非构造函数和非析构函数的成员函数中调用虚函数，是多态！<br>而在构造函数和析构函数中调用虚函数，不是多态。这在编译时就可以确定了调用的函数是自己的类或基类中定义的函数，不会等到运行时才确定要调用哪个函数。</p>
-<h2 id="多态的实现原理"><a href="#多态的实现原理" class="headerlink" title="多态的实现原理"></a>多态的实现原理</h2><p>在运行时决定调用基类还是派生类，“动态联编”。<br>多态实现的关键—虚函数表。每一个有虚函数的类（或者有虚函数的类的派生类），都有一个虚函数表与其对应。该类的任何对象中都放着虚函数表的指针。虚函数表中列出了该类的虚函数地址，多出来的四个字节就是用来放虚函数表地址的。<br>so, 多态的调用语句被编译成一系列根据基类指针所指向的（或基类引用所引用的）对象中存放的虚函数表的地址，在虚函数表中查找虚函数地址，并调用虚函数的指令。<br><img src="http://ww2.sinaimg.cn/mw690/a207cfd8gw1f4nwq0yglyj20ha0dkdh3.jpg" alt=""></p>
-<h2 id="虚析构函数"><a href="#虚析构函数" class="headerlink" title="虚析构函数"></a>虚析构函数</h2><p>针对基类的指针删除派生类对象时 只调用基类的析构函数这种情况。<br>设计一种虚析构函数。<br><img src="http://ww1.sinaimg.cn/mw690/a207cfd8gw1f4nwq1wljej20jj0attaf.jpg" alt=""><br>类如果定义了额虚函数，则最好将析构函数也定义成虚函数。<br>当然，我们不允许构造函数是虚函数。</p>
-<h2 id="纯虚函数和抽象类。"><a href="#纯虚函数和抽象类。" class="headerlink" title="纯虚函数和抽象类。"></a>纯虚函数和抽象类。</h2><p>纯虚函数： 没有函数体的虚函数。<br>抽象类 ： 包含纯虚函数的类。<br>1， 抽象类住能作为基类。<br>2， 不能创建抽象类的对象。<br>3， 抽象类的指针和引用-&gt;由抽象类派生出来的类的对象<br><img src="http://ww4.sinaimg.cn/mw690/a207cfd8gw1f4nwq2oyqmj20na0dldij.jpg" alt=""></p>
-<p>在抽象类中，<br>1，成员函数内可以调用纯虚函数/<br>2，在构造函数/析构函数内部不能调用纯虚函数。</p>
-<p>如果一个类从抽象类派生而来<br>它实现了基类中所有的纯虚函数，才能成为非抽象类。</p>
+        <h1 id="一，Use-const-whenever-possible-03"><a href="#一，Use-const-whenever-possible-03" class="headerlink" title="一，Use const whenever possible.(03)"></a>一，Use const whenever possible.(03)</h1><h2 id="主要内容"><a href="#主要内容" class="headerlink" title="主要内容"></a>主要内容</h2><p><strong>const</strong>是一个强大的武器，它允许你指定一个语义约束（指定一个“不该被改动”的对象），然后通过编译器来行使这项约束。而我们应该做的事情就是，只要这（某值应该保持不变）是一个事实，那么久该尽可能的说出来，获得编译器的襄助，减少程序出错的可能。</p>
+<p>下面记录一些我觉得自己还不太熟的tips:<br>1，const在*左右分别表示 是指针指向的数值为const还是指针本身是const。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">char greeting[] = &quot;Hello&quot;</div><div class="line">char* p = greeting;         //not-const pointer, non-const data</div><div class="line">const char* p = greeting;   //non-const pointer, const data</div><div class="line">char* const p = greeting;   //const pointer, non-const data</div><div class="line">const char* const p = greeting; // const pointer, const data</div></pre></td></tr></table></figure></p>
+<p>2，const在函数前，表示其返回值是const不能被修改；const如果为函数参数，表示该参数在函数中不可被修改；const如果修饰函数本身，则这个函数是bitwise const的，不可修改任何关于对象的内容。</p>
+<p>3，const 和 const-non函数，可以够成重载。但是这往往会导致大量代码的重复。我们可以通过让non-const函数调用const函数实现常量性转移（casting away constness）（不可反向）。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">//for example</div><div class="line">class TextBlock&#123;</div><div class="line">public:</div><div class="line">	TextBlock(string s)</div><div class="line">	&#123;</div><div class="line">		text = s;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	char&amp; operator [](size_t t)</div><div class="line">	&#123;</div><div class="line">		return const_cast&lt;char&amp;&gt; (</div><div class="line">			static_cast&lt;const TextBlock&amp;&gt;(*this)[t]</div><div class="line">			);</div><div class="line">	&#125;</div><div class="line">	const char&amp; operator [](size_t t) const</div><div class="line">	&#123;</div><div class="line">		return text[t];</div><div class="line">	&#125;</div><div class="line">private:</div><div class="line">	string text;</div><div class="line"></div><div class="line">	//即使在const函数中，也加油被修改</div><div class="line">	mutable bool flag;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
 
       
     </div>
@@ -320,17 +309,13 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/11/04/C++程序设计---继承和派生/" rel="next" title="C++程序设计---继承和派生">
-                <i class="fa fa-chevron-left"></i> C++程序设计---继承和派生
+              <a href="/2016/11/08/Effective C++ --让自己习惯C++(01)/" rel="next" title="Effective C++ --让自己习惯C++(01)">
+                <i class="fa fa-chevron-left"></i> Effective C++ --让自己习惯C++(01)
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/11/04/C++程序设计---模板/" rel="prev" title="C++程序设计---模板">
-                C++程序设计---模板 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -450,7 +435,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#虚函数"><span class="nav-number">1.</span> <span class="nav-text">虚函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多态的表现形式"><span class="nav-number">2.</span> <span class="nav-text">多态的表现形式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一，"><span class="nav-number">2.1.</span> <span class="nav-text">一，</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二，"><span class="nav-number">2.2.</span> <span class="nav-text">二，</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多态的实现原理"><span class="nav-number">3.</span> <span class="nav-text">多态的实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#虚析构函数"><span class="nav-number">4.</span> <span class="nav-text">虚析构函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#纯虚函数和抽象类。"><span class="nav-number">5.</span> <span class="nav-text">纯虚函数和抽象类。</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一，Use-const-whenever-possible-03"><span class="nav-number">1.</span> <span class="nav-text">一，Use const whenever possible.(03)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#主要内容"><span class="nav-number">1.1.</span> <span class="nav-text">主要内容</span></a></li></ol></li></ol></div>
             
           </div>
         </section>
