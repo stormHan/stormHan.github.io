@@ -68,6 +68,86 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-纹理内存" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/11/24/纹理内存/" class="article-date">
+  <time datetime="2016-11-24T08:37:45.819Z" itemprop="datePublished">2016-11-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/11/24/纹理内存/">纹理内存</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>与常量内存类似，纹理内存同样缓存在芯片上，因此在某些情况中，它能减少对内存的请求并提供更高效的内存带宽。纹理缓存是专门为那些在内存访问模式中存在大量空间局部性（Spatial Locality）的图形应用程序而设计的。在某个计算应用程序中，这意味着一个线程读取的位置可能与邻近线程读取的位置“非常接近”。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">//一维纹理</div><div class="line">texture&lt;float&gt; texIn;</div><div class="line">texture&lt;float&gt; texOut;</div><div class="line"></div><div class="line">cudaBindTexture(NULL, texIn, data.inSrc, size);</div><div class="line">cudaBindTexture(NULL, texOut, data.outSrc, size);</div><div class="line"></div><div class="line">//不同与其它内存用方括号访问内存，纹理内存用内置函数访问</div><div class="line">float f1 = tex1Dfetch(texIn, pos1);</div><div class="line">float f2 = tex1Dfetch(texOut, pos2);</div><div class="line">//核函数中无需将纹理内存作为参数传入</div><div class="line"></div><div class="line">cudaUnbindTexture(texIn);</div><div class="line">cudaUnbindTexture(texOut);</div><div class="line"></div><div class="line">//二维纹理</div><div class="line">texture&lt;float, 2&gt; texIn;</div><div class="line">texture&lt;float, 2&gt; texOut;</div><div class="line"></div><div class="line">//使用tex2D时，不需要担心发生溢出的问题。如果参数x,y小于0或某个值大于宽度，则会返回位于0或者宽度位置的值。（注意，在有些应用程序中需要这种行为，而有些则需要避免该行为的发生）</div><div class="line"></div><div class="line">float t = tex2D(texIn, x, y);</div><div class="line">//与一维纹理相同的是，都需要预先分配存储空间。但不同的是，二维纹理要求提供一个cudaChannelFormatDesc,对通道格式描述符的声明。</div><div class="line">cudaChannelFormatDesc desc = cudaCreateChannelDesc&lt;float&gt;();</div><div class="line">//这里使用默认的参数，仅仅指定浮点描述符。</div><div class="line">cudaBindTexture2D(NULL, texIn, data.Insrc, desc, DIM, DIM, size);</div><div class="line">//同样是使用cudaUnbindTexture（texIn）来解除绑定。</div></pre></td></tr></table></figure>
+<p>注意，无论是使用2维纹理还是1维纹理，性能基本相同，只是在有些情况下，2维纹理的代码会更简单直观一些。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/11/24/纹理内存/" data-id="civw3xn250009kswa1yyt5m2c" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-常量内存和GPU事件性能测试" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/11/24/常量内存和GPU事件性能测试/" class="article-date">
+  <time datetime="2016-11-24T07:31:59.448Z" itemprop="datePublished">2016-11-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/11/24/常量内存和GPU事件性能测试/">常量内存和GPU事件性能测试</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="常量内存"><a href="#常量内存" class="headerlink" title="常量内存"></a>常量内存</h2><p>常量内存首先，顾名思义，是不会发生变化的。<br>其次，在GPU中，访问常量内存，对<strong>常量</strong>内存的读操作可以广播到该线程的“邻近”线程，而什么是“邻近”线程呢，在此需要引入<strong>线程束</strong>的概念。</p>
+<h3 id="线程束Warp"><a href="#线程束Warp" class="headerlink" title="线程束Warp"></a>线程束Warp</h3><p>这里的warp并不是《星际迷航》电影中的曲速引擎（Warp Drive）,而是来自纺织（Weaving）领域的概念。线程束可以看成是一组线程通过交织而形成的一个整体。在cuda架构中，线程束是指一个包含32个线程的集合，这个线程集合被“编织在一起”并且以“步调一致（LOCKSTEP）”的形式执行。在程序中的每一行，线程束中的每个线程都将在不同的数据上执行相同的指令。</p>
+<h3 id="使用常量内存的优势"><a href="#使用常量内存的优势" class="headerlink" title="使用常量内存的优势"></a>使用常量内存的优势</h3><p>当处理常量内存时，NVIDIA硬件将把单词内存读取操作广播到每个半线程束（Half-Warp）。在半线程束中包含了16个线程。如果在半线程束中的每个线程都从常量内存的相同地址上读取数据，那么GPU只会产生一次读取请求并在随后将数据广播到每个线程。如果从常量内存中读取大量的数据，那么这种方式产生的内存流量只是使用全局内存的（1/16）。<br>同时，由于读取常量内存时，内容是不会发生变化的，因此硬件将主动把这个常量数据缓存在GPU上。那么在第一次从常量内存的地址上读取后，当其他半线程束请求同一地址时，那么将命中缓存，这同样减少了额外的内存流量。</p>
+<h3 id="使用常量内存的缺点"><a href="#使用常量内存的缺点" class="headerlink" title="使用常量内存的缺点"></a>使用常量内存的缺点</h3><p>然而当使用常量内存时，也可能造成性能的下降。当半线程内的线程访问的数据不同时，将会串行的访问常量内存。如分别读取不同的地址时，则需要16倍的时间来发出请求，这是一个权衡的过程。</p>
+<h2 id="事件性能测试"><a href="#事件性能测试" class="headerlink" title="事件性能测试"></a>事件性能测试</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">cudaEvent_t start, stop;</div><div class="line">cudaEventCreate(&amp;start);</div><div class="line">cudaEventCreate(&amp;stoo);</div><div class="line">cudaEventRecord(start, 0);</div><div class="line"></div><div class="line">//在GPU上执行一些工作</div><div class="line"></div><div class="line">cudaEventRecord(stop, 0);</div><div class="line">cudaEventSynchronize(stop);//防止cpu代码在gpu代码还在执行时就记录了时间而导致测试不准。</div><div class="line"></div><div class="line">float elapsedTime;</div><div class="line">cudaEventElapsedTime(&amp;elapsedTime, start, stop);</div><div class="line">cudaEventDestory(start);</div><div class="line">cudaEventDestory(stop);</div></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/11/24/常量内存和GPU事件性能测试/" data-id="civw3xn240008kswa3vb757m6" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-Effective C++ --让自己习惯C++(02)" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2016/11/09/Effective C++ --让自己习惯C++(02)/" class="article-date">
@@ -98,7 +178,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/11/09/Effective C++ --让自己习惯C++(02)/" data-id="civndnf5r0009sgwa5pa5xxgb" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/11/09/Effective C++ --让自己习惯C++(02)/" data-id="civw3xn210007kswal7q1ttjj" class="article-share-link">Share</a>
       
       
     </footer>
@@ -156,7 +236,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/11/08/Effective C++ --让自己习惯C++(01)/" data-id="civndnf5l0006sgwa74gir3x3" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/11/08/Effective C++ --让自己习惯C++(01)/" data-id="civw3xn25000akswa5efhphiu" class="article-share-link">Share</a>
       
       
     </footer>
@@ -196,7 +276,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/11/08/Trie树/" data-id="civndnf5m0007sgwa0zhx1g9s" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/11/08/Trie树/" data-id="civw3xn1r0005kswa34r0l4fs" class="article-share-link">Share</a>
       
       
     </footer>
@@ -242,7 +322,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/11/04/C++程序设计---模板/" data-id="civndnf5b0000sgwall48depv" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/11/04/C++程序设计---模板/" data-id="civw3xn1o0002kswaicwrmc46" class="article-share-link">Share</a>
       
       
     </footer>
@@ -289,7 +369,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/11/04/C++程序设计--多态和虚函数/" data-id="civndnf5h0003sgwamvtexj93" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/11/04/C++程序设计--多态和虚函数/" data-id="civw3xn1q0004kswaqbx2jpj6" class="article-share-link">Share</a>
       
       
     </footer>
@@ -340,7 +420,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/11/04/C++程序设计---继承和派生/" data-id="civndnf5f0001sgwaqug4am5w" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/11/04/C++程序设计---继承和派生/" data-id="civw3xn1k0000kswa1k2n4odg" class="article-share-link">Share</a>
       
       
     </footer>
@@ -387,7 +467,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/11/04/C++程序设计--运算符重载/" data-id="civndnf5i0004sgwagcwz7jv2" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/11/04/C++程序设计--运算符重载/" data-id="civw3xn1u0006kswa23fhgc0z" class="article-share-link">Share</a>
       
       
     </footer>
@@ -449,158 +529,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/11/04/C++ 程序设计思想（I）/" data-id="civndnf5g0002sgwatkanjpci" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-enumeration" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/11/04/enumeration/" class="article-date">
-  <time datetime="2016-11-04T11:36:05.302Z" itemprop="datePublished">2016-11-04</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/11/04/enumeration/">枚举</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><strong>枚举，基于已有的知识进行答案猜测的一种问题求解策略。</strong><br>从可能的集合中一一列举各元素，根据已经知道的知识，给一个猜测的答案。</p>
-<p>Ex.以找到比N小的最大素数为例</p>
-<p><strong>枚举算法</strong></p>
-<blockquote>
-<p>对问题可能解集的每一项根据问题给定的检验条件判定哪些是成立的，使条件成立的即是问题的解。</p>
-</blockquote>
-<p><strong>枚举过程</strong></p>
-<blockquote>
-<p>1, 判断猜测的答案是否正确。（例如，2是小于N的最大素数吗）<br>2, 进行新的猜测：注意要保证，（1）猜测的结果必须是前面的猜测中没有出现过的。（每次猜测的素数要比之前的要大）（2）猜测的过程中要尽早的排除错误答案。（除2之外，只有奇数才可能是素数。）</p>
-</blockquote>
-<p>所以要考虑到三个关键问题。</p>
-<blockquote>
-<p>1， 给出解空间，建立简洁的数学模型。<br>2， 减少搜索的空间。 利用知识缩小模型中各个变量的范围。<br>3， 采用合适的搜索顺序。</p>
-</blockquote>
-<p>先附上之前问题的解法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">//找到小于N的最大素数</div><div class="line">//用这种枚举的方法，要比去判断n-1, n-2...是否是质数要快。</div><div class="line">int findNum(const int N)</div><div class="line">&#123;</div><div class="line">	int ret;</div><div class="line"></div><div class="line">	std::vector&lt;int&gt; prim;</div><div class="line">	prim.push_back(2);</div><div class="line">	bool flag = true; //标识当前的数是否是质数</div><div class="line">	for (int i = 3; i &lt; N; i = i + 2/* 排除偶数*/)</div><div class="line">	&#123;</div><div class="line">		for (int j = 0; j &lt; prim.size() - 1; ++j)</div><div class="line">		&#123;</div><div class="line">			if (i % prim[j] == 0)</div><div class="line">			&#123;</div><div class="line">				flag = false;</div><div class="line">				break;</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">		if (flag) prim.push_back(i);//如果当前i是质数，把它Push到质数数组里</div><div class="line"></div><div class="line">		flag = true;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	return prim[prim.size() - 1];</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<h2 id="例一-熄灯问题"><a href="#例一-熄灯问题" class="headerlink" title="例一 熄灯问题"></a>例一 熄灯问题</h2><p>问题描述</p>
-<blockquote>
-<pre><code>有一个由按钮组成的矩阵，其中每行有6个按钮，共5行，每个按钮上有一盏灯。当你按下一个按钮后，该按钮以及其周围上下左右四盏灯都会改变，亮--&gt;暗或者暗--&gt;亮。
-要求对矩阵中的每盏灯设置一个初始状态，请你写一个程序，确定需要按下哪些按钮，恰好使得所有的灯都熄灭。
-</code></pre><p><img src="http://ww1.sinaimg.cn/mw690/a207cfd8gw1f495k5t33ij20qo0exwit.jpg" alt=""></p>
-</blockquote>
-<p><img src="http://ww2.sinaimg.cn/mw690/a207cfd8gw1f495k7la92j20i20etn02.jpg" alt=""></p>
-<p>ji<br>如果穷举所有的状态，即为2^(5<em>6)种，肯定是不现实的。<br><em>*那么此时穷举的技巧是，如果存在某个局部，一旦这个局部的状态被确定，那么剩余其他部分的状态只能是确定的一种，或者不多的n种，那么就只需要枚举这个局部的状态就可以。</em></em><br>本题是有这样的“局部”的，当第一行的开关状态确定后，如果要熄灭第一行的所有灯，只能依靠第二行在第一行亮灯的对应位置下Press,故在第一行状态后，第二行的状态实际上已经确定好了；依次类推，第三行第四行…所有有一个思路是枚举第一行的所有的状态，然后判断第五行是否恰好都熄灭。以下是代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div></pre></td><td class="code"><pre><div class="line">//-------------------------------------------------</div><div class="line">//**熄灯问题**</div><div class="line">//枚举第一行的所有情况 2^6 = 64种。</div><div class="line">//对于每一种情况，下面的1-4行结果唯一，最后判断第五行是否正好都别熄灭，若是，则得到正确解。</div><div class="line"></div><div class="line">int press[6][8], puzzle[6][8];</div><div class="line"></div><div class="line">bool guess()</div><div class="line">&#123;</div><div class="line">	for (int i = 1; i &lt; 7; ++i)</div><div class="line">	&#123;</div><div class="line">		for (int j = 0; j &lt; 5; ++j)</div><div class="line">		&#123;</div><div class="line">			//根据Press第一行和puzzle数组，计算press其它行的值</div><div class="line">			press[i + 1][j] = (puzzle[i][j] + press[i - 1][j] + press[i][j] + press[i][j + 1] + press[i][j - 1]) % 2;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	for (int i = 1; i &lt; 7; ++i)</div><div class="line">	&#123;</div><div class="line">		//判断所计算的press数组能否熄灭第五行的所有灯</div><div class="line">		if ((puzzle[5][i] + press[5][i] + press[5][i - 1] + press[5][i + 1]) % 2 == 1)</div><div class="line">			return false;</div><div class="line">	&#125;</div><div class="line">	return true;</div><div class="line">&#125;</div><div class="line"></div><div class="line">void enumerate()</div><div class="line">&#123;</div><div class="line"></div><div class="line"></div><div class="line">	int c;</div><div class="line">	for (c = 1; c &lt; 7; ++c)</div><div class="line">	&#123;</div><div class="line">		press[1][c] = 0;</div><div class="line">	&#125;</div><div class="line">	while (!guess())</div><div class="line">	&#123;</div><div class="line">		//对press第一行的元素的各种取值进行枚举，依次考虑</div><div class="line">		c = 1;</div><div class="line">		press[1][c]++;</div><div class="line">		//累加进位</div><div class="line">		while (press[1][c] &gt; 1)</div><div class="line">		&#123;</div><div class="line">			press[1][c] = 0;</div><div class="line">			c++;</div><div class="line">			press[1][c] += 1;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	return;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">int main(int argc, char** argv)</div><div class="line">&#123;</div><div class="line"></div><div class="line">	int cases, i, r, c;</div><div class="line">	scanf(&quot;%d&quot;, &amp;cases); </div><div class="line"></div><div class="line">	//将扩大的矩阵的边缘用0填充</div><div class="line">	for (r = 0; r &lt; 6; r++)</div><div class="line">	&#123;</div><div class="line">		press[r][0] = 0;</div><div class="line">		press[r][7] = 0;</div><div class="line">	&#125;</div><div class="line">	for (c = 0; c &lt; 8; c++)</div><div class="line">	&#123;</div><div class="line">		press[0][c] = 0;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	for (i = 0; i &lt; cases; ++i)</div><div class="line">	&#123;</div><div class="line">		for (r = 1; r &lt; 6; ++r)</div><div class="line">		&#123;</div><div class="line">			for (c = 1; c &lt; 7; ++c)</div><div class="line">			&#123;</div><div class="line">				scanf(&quot;%d&quot;, &amp;puzzle[r][c]);</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">		enumerate();</div><div class="line">		</div><div class="line">		printf(&quot;PUZZLE# %d\n&quot;, i + 1);</div><div class="line">		for (r = 1; r &lt; 6; ++r)</div><div class="line">		&#123;</div><div class="line">			for (c = 1; c &lt; 7; ++c)</div><div class="line">			&#123;</div><div class="line">				printf(&quot;%d &quot;, press[r][c]);</div><div class="line">			&#125;</div><div class="line">			printf(&quot;\n&quot;);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	return 0;</div><div class="line">	</div><div class="line">	</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<h2 id="讨厌的青蛙"><a href="#讨厌的青蛙" class="headerlink" title="讨厌的青蛙"></a>讨厌的青蛙</h2><p>问题描述<br>    有一种青蛙，会跳跃稻田，从而踩踏稻子。青蛙总是沿着一条直线跳跃稻田，并且每次跳跃的距离都相同。（可竖直也可倾斜）。来看看标准输入输出。<br>    <img src="http://ww4.sinaimg.cn/mw690/a207cfd8jw1f49yg2oa21j20nu0fe0z3.jpg" alt=""><br>    <img src="http://ww1.sinaimg.cn/mw690/a207cfd8jw1f49yg35ihqj20p30fodkg.jpg" alt=""><br>    <img src="http://ww1.sinaimg.cn/mw690/a207cfd8jw1f49yg3so7aj20oq0fqq8v.jpg" alt=""><br>    <img src="http://ww1.sinaimg.cn/mw690/a207cfd8jw1f49yg4epb6j20ol0fpdiu.jpg" alt=""></p>
-<p>那么，我们枚举的是什么？肯定不能枚举所有可能出现的情况。<br>我们知道，两点确定一条直线，所以基本思路就是枚举第一个点和第二个点。<br>先直接粘贴代码，注释中有比较详细的思路。总结在之后。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div></pre></td><td class="code"><pre><div class="line">#include &lt;stdio.h&gt;</div><div class="line">#include &lt;stdlib.h&gt;</div><div class="line">#include &lt;algorithm&gt;</div><div class="line"></div><div class="line">//-------------------------------------------------</div><div class="line">//**讨厌的青蛙**</div><div class="line">//定义了一个结构体用于描述踩踏水稻的横纵坐标</div><div class="line">struct Plant</div><div class="line">&#123;</div><div class="line">	int x;</div><div class="line">	int y;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">Plant plants[5000];</div><div class="line">int r, c, n;</div><div class="line">//申请一个动态的空间来存放稻田是否被踩踏</div><div class="line">int **field;</div><div class="line"></div><div class="line">int searchPath(int dx, int dy, Plant p)</div><div class="line">&#123;</div><div class="line">	int step = 1;</div><div class="line">	int x = p.x;</div><div class="line">	int y = p.y;</div><div class="line"></div><div class="line">	while (x &gt;= 1 &amp;&amp; x &lt;= c &amp;&amp; y &gt;= 1 &amp;&amp; y &lt;= r)</div><div class="line">	&#123;</div><div class="line">		step++;</div><div class="line">		//这一步也可以用二叉查找来找plants里面有没有x, y相对应的点</div><div class="line">		if(field[x][y] != 1 /* std::!binary_search(plants, plants + n, plants)*/) return 0;</div><div class="line"></div><div class="line">		x += dx;</div><div class="line">		y += dy;</div><div class="line">	&#125;</div><div class="line">	return step;</div><div class="line">&#125;</div><div class="line"></div><div class="line">void input()</div><div class="line">&#123;</div><div class="line">	scanf(&quot;%d %d %d&quot;, &amp;r, &amp;c, &amp;n);</div><div class="line"></div><div class="line">	field = new int*[r + 1];</div><div class="line">	for (int i = 0; i &lt; r + 1; ++i)</div><div class="line">	&#123;</div><div class="line">		field[i] = new int[c + 1];</div><div class="line">	&#125;</div><div class="line">	//先初始化其为0</div><div class="line">	for (int i = 1; i &lt; r + 1; ++i)</div><div class="line">	&#123;</div><div class="line">		for (int j = 1; j &lt; c + 1; ++j)</div><div class="line">		&#123;</div><div class="line">			field[i][j] = 0;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	for (int i = 0; i &lt; n; ++i)</div><div class="line">	&#123;</div><div class="line">		scanf(&quot;%d %d&quot;, &amp;plants[i].x, &amp;plants[i].y);</div><div class="line">		field[plants[i].x][plants[i].y] = 1;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	for (int i = 1; i &lt; r + 1; ++i)</div><div class="line">	&#123;</div><div class="line">		for (int j = 1; j &lt; c + 1; ++j)</div><div class="line">		&#123;</div><div class="line">			printf(&quot;%d &quot;, field[i][j]);</div><div class="line">		&#125;</div><div class="line">		printf(&quot;\n&quot;);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line">int hatingFlog()</div><div class="line">&#123;</div><div class="line">	int dx, dy;</div><div class="line">	int max = 2;</div><div class="line">	int tmpStep;</div><div class="line">	input();</div><div class="line"></div><div class="line">	std::sort(plants, plants + n);</div><div class="line"></div><div class="line">	for (int i = 0; i &lt; n - 1; ++i)</div><div class="line">	&#123;</div><div class="line">		for (int j = i + 1; j &lt; n; ++j)</div><div class="line">		&#123;</div><div class="line">			dx = plants[j].x - plants[i].x;</div><div class="line">			dy = plants[j].y - plants[i].y;</div><div class="line">			//如果第一个点的前一个点还在field内，则肯定不是最优答案的起点，换第二个点。</div><div class="line">			if (plants[i].x - dx &gt;= 1 &amp;&amp; plants[i].x - dx &lt;= c &amp;&amp; plants[i].y - dy &gt;= 1 &amp;&amp; plants[i].y &lt;= r)</div><div class="line">				continue;</div><div class="line">			//如果第一个点经过比max还小的step就越界了，肯定也不可能满足条件。</div><div class="line">			//由于是按x排好序的，再往后换第二个点必然也不满足条件，所以换第一个点。</div><div class="line">			if (plants[i].x + dx * (max - 1) &gt; r)</div><div class="line">				break;</div><div class="line"></div><div class="line">			//如果y方向过早越界</div><div class="line">			if (plants[i].y + dy * (max - 1) &gt; c || plants[i].y + dy * (max - 1) &lt; 1)</div><div class="line">				continue;</div><div class="line"></div><div class="line">			//如果三种提前的排除无法排除该店，那么算这条路径的step，看其是否为最大。</div><div class="line">			int tmpStep = searchPath(dx, dy, plants[i]);</div><div class="line">			if (tmpStep &gt; max) max = tmpStep;</div><div class="line"></div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	if (max &lt;= 2) max = 0;</div><div class="line">	return max;</div><div class="line">&#125;</div><div class="line"></div><div class="line">bool operator &lt; (const Plant&amp; p1, const Plant&amp; p2)</div><div class="line">&#123;</div><div class="line">	if (p1.x == p2.x) return p1.y &lt; p2.y;</div><div class="line">	return p1.x &lt; p2.x;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>思路值得我们继续巩固的点有：<br>1，<strong>通过思考得到“局部”枚举的方式。</strong><br>2，对标准库里面函数的运用，sort, 包括binary_search的运用；当然，有很多时候我们对一些复杂的数据结构进行排序时，需要我们自己进行操作符重载。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/11/04/enumeration/" data-id="civndnf5s000asgwautv8lc47" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-Cuda Beginning" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/11/04/Cuda Beginning/" class="article-date">
-  <time datetime="2016-11-04T11:35:30.866Z" itemprop="datePublished">2016-11-04</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/11/04/Cuda Beginning/">Cuda Beginning</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>##前言</p>
-<p>由于一直在学习图形学，很多时候，图形学中的计算，如最近碰到的问题，计算随机点的中垂面，每个点的计算K近邻树，都是独立的。如果用GPU并行加速，可能会有好的提速效果。再加上导师最想希望我和实验室学长开始做一个基于Cuda的项目，故想开始学CUDA。</p>
-<h2 id="结构目录"><a href="#结构目录" class="headerlink" title="结构目录"></a>结构目录</h2><blockquote>
-<ul>
-<li>Cuda是什么</li>
-<li>Cuda程序的编译过程</li>
-<li>我的第一个Cuda程序</li>
-<li>利用GPU加速Matrix Multiplication</li>
-<li>优化策略1 : shared memory</li>
-<li>优化策略2 : texture memroy</li>
-<li>总结</li>
-</ul>
-</blockquote>
-<h3 id="Cuda是什么"><a href="#Cuda是什么" class="headerlink" title="Cuda是什么"></a>Cuda是什么</h3><p>CUDA(Compute Unified Device Architecture)，是显卡厂商NVIDIA推出的运算平台。 CUDA™是一种由NVIDIA推出的通用并行计算架构，该架构使GPU能够解决复杂的计算问题。而我们关心的事情有2点：</p>
-<blockquote>
-<ol>
-<li>Cuda是对GPU运算能力的并行利用；</li>
-<li>Cuda很好的兼容了C/C++，在此之上做了扩展；</li>
-</ol>
-</blockquote>
-<p>听到过一个不错的比喻：　<br>CPU可以类比于一个强壮的男人，随机现在硬件能力的不断提升，单个CPU已经拥有了很强大的能力，甚至CPU也有了多核，同样也有很多基于CPU的多线程编程。<br>而GPU则是一群小孩，每一个能力不大，但是由于GPU可以同时开启成千上万个线程，&lt;线程格，线程块，线程&gt;，因此可以同时做很多事情，极大的提升程序的运行效率，这就是并行的好处。</p>
-<p>tips : GPU是不适合做太多的逻辑判断的。它更希望能做一些简单的计算工作。</p>
-<h3 id="Cuda程序的编译过程"><a href="#Cuda程序的编译过程" class="headerlink" title="Cuda程序的编译过程"></a>Cuda程序的编译过程</h3><p>Cuda程序一般分为两个部分，其中一部分是用Nvidia的编译器进行编译，在GPU上运行；另一部分，用原本的VS（我使用的编译器是Visual Studio）编译，在CPU上跑。<br><img src="http://images2015.cnblogs.com/blog/917758/201605/917758-20160505212820888-1718051162.png" alt="Nvcc的编译过程"><br>Cuda C是支持C/C++语言的。它只对C语言做了一个很小的扩展并且提供了一个C runtime library.<br>想要知道Cuda是怎么运行的，我们首先要知道Cuda程序的编译过程。</p>
-<h4 id="NVCC-的工作流主要分下面几步："><a href="#NVCC-的工作流主要分下面几步：" class="headerlink" title="NVCC 的工作流主要分下面几步："></a><em>NVCC</em> 的工作流主要分下面几步：</h4><p>1，将程序中的host code 和 device code 区别开来。<br>2，将device code进行转化可装配形式（assembly form (PTX code)），进而转化成2进制流，用于交给GPU处理。<br>3，将Host code中不符合C语言标准的代码进行替换，然后按照正常的编译过程进行编译链接，在CPU中处理。</p>
-<h4 id="Kernel-核函数"><a href="#Kernel-核函数" class="headerlink" title="Kernel 核函数"></a><em>Kernel</em> 核函数</h4><pre><code>核函数是作用在GPU上，用____global____定义，相当于是cuda提供给C/C++的一个接口，每次可以同时调用多个核函数，每个线程都会执行这个核函数，线程块和线程的数量可以自己根据计算的规模和硬件条件来设定。核函数是cuda编程的核心，在之后的例子中我们也能看到。
-</code></pre><h4 id="Initialization-初始化过程："><a href="#Initialization-初始化过程：" class="headerlink" title="Initialization 初始化过程："></a><em>Initialization</em> 初始化过程：</h4><pre><code>一般来说，Cuda并没有一个明确的开始标识，当第一个runtime function被调用的时候，GPU section就被初始化了。在初始化的过程中，会创建一个cuda contexet，初始创建的这个cuda环境是主要环境，被所有的host所共享。*cudaDeviceReset()*可以destory当前的上下文，直至下一个runtime function被调用时，将重新创建primary context。
-</code></pre><h4 id="Device-Memory-设备内存："><a href="#Device-Memory-设备内存：" class="headerlink" title="Device Memory 设备内存："></a><em>Device Memory</em> 设备内存：</h4><pre><code>设备内存相当于是GPU中的内存，一般的分配方法有两种，线性内存或者cuda arrays，其中cuda arrays是和纹理内存相关的，我们后续再谈。
-线性内存通常使用*cudaMalloc()*分配，*cudaFree()*释放，*cudaMemcpy()*在主机和设备之间传递数据。
-</code></pre><h3 id="我的第一个Cuda程序"><a href="#我的第一个Cuda程序" class="headerlink" title="我的第一个Cuda程序"></a>我的第一个Cuda程序</h3><p>给出一个最基本的例子，也是在Visual Studio上创建一个.cu文件时，会自动生成的一个示例代码。</p>
-<p>输入：两个长度一样的数组，假设长度为5；<br>输出：一个结果数组，数组里面的每一个数是2个输入数组里对应位置的和。</p>
-<p>CPU思路，这是一道简单得不能再简单的题，通常CPU中的算法必然是定义一个循环，遍历2个输入数组并将他们对应元素的和相加，得到结果数组。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">for(int i = 0; i &lt; 5; ++i)</div><div class="line">&#123;</div><div class="line">    _c[i] = a[i] + b[i];</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>可以看到，CPU中进行的是五次串行运算。</p>
-<p>那么回到我们想要实现的GPU并行计算。之前也提到过，GPU是通过调用核函数来调用进程的。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"> // Launch a kernel on the GPU with one thread for each element.</div><div class="line">  addKernel&lt;&lt;&lt;1, 5&gt;&gt;&gt;(dev_c, dev_a, dev_b);</div><div class="line">    </div><div class="line">    __global__ void addKernel(int *c, const int *a, const int *b)</div><div class="line">&#123;</div><div class="line">    int i = threadIdx.x;</div><div class="line"></div><div class="line">    c[i] = a[i] + b[i];</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>可以大致想象，我们开启了5个线程，然后通过thread.x来获取所在线程的信息，同时计算结果数组C，以此来实现并行的效果。当然，在GPU中需要单独分配和释放内存，同时数据也会在CPU和GPU中来回传递，这个Cuda都已经为我们提供好了相应的接口，后续我们会继续介绍。</p>
-<h3 id="利用GPU加速Matrix-Multiplication"><a href="#利用GPU加速Matrix-Multiplication" class="headerlink" title="利用GPU加速Matrix Multiplication"></a>利用GPU加速Matrix Multiplication</h3><h4 id="1，矩阵乘法的CPU思路"><a href="#1，矩阵乘法的CPU思路" class="headerlink" title="1，矩阵乘法的CPU思路"></a>1，矩阵乘法的CPU思路</h4><p>在这里我是默认读者已经有基本的矩阵运算基础的。所以不难想到，对于CPU的矩阵乘法算法如下：<br>由于，对于C中的每一个数，都要经过n次乘法运算，因此总的时间复杂度应该是O(n^3)。<br>对于计算两个1024*1024的输入方阵，CPU串行计算时间大概在9000ms左右。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">//CPU version 其中C是结果矩阵，AB是输入矩阵。</div><div class="line">void MatrixMulCPU(float *_C, const float* _A, const float* _B, int WA, int HA, int WB, int HB)</div><div class="line">&#123;</div><div class="line">	if (WA != HB)</div><div class="line">	&#123;</div><div class="line">		printf(&quot;the matrix A and B cannot be multipled!&quot;);</div><div class="line">			exit(0);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	for (int i = 0; i &lt; HA; ++i)</div><div class="line">	&#123;</div><div class="line">		for (int j = 0; j &lt; WB; ++j)</div><div class="line">		&#123;</div><div class="line">			for (int k = 0; k &lt; WA; ++k)</div><div class="line">			&#123;</div><div class="line">				_C[i * WA + j] += _A[i * WA + k] * _B[k * WB + j];</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="2，GPU优化思路。"><a href="#2，GPU优化思路。" class="headerlink" title="2，GPU优化思路。"></a>2，GPU优化思路。</h4><p>借矩阵乘法的GPU算法，我在这里完整地说一下GPU调用核函数的方法。<br>首先申请的是CPU上的内存，也即是host memory。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">   const int width_A = 1024;</div><div class="line">const int height_A = 1024;</div><div class="line">const int width_B = 1024;</div><div class="line">const int height_B = 1024;</div><div class="line"></div><div class="line">float *B = (float *)malloc(sizeof(float) * height_B * width_B);</div><div class="line">float *A = (float *)malloc(sizeof(float) * height_A * width_A);</div><div class="line">float *C = (float *)malloc(sizeof(float) * height_A * width_B);</div></pre></td></tr></table></figure></p>
-<p>我是给了A,B矩阵0-100的随机数。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">//产生随机数生成器</div><div class="line">	srand((unsigned)time(0));</div><div class="line"></div><div class="line">	randomInit(B, height_B * width_B);</div><div class="line">	randomInit(A, height_A * width_A);</div></pre></td></tr></table></figure></p>
-<p>之后申请device memory，并且把A, B所在内存拷贝过GPU上。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">   float *dev_a = 0;</div><div class="line">float *dev_b = 0;</div><div class="line">float *dev_c = 0;</div><div class="line"></div><div class="line">cudaError_t cudaStatus;</div><div class="line">// Choose which GPU to run on, change this on a multi-GPU system.</div><div class="line">   cudaStatus = cudaSetDevice(0);</div><div class="line">   </div><div class="line">   cudaStatus = cudaMalloc((void**)&amp;dev_c, HA * WB * sizeof(float));</div><div class="line">   </div><div class="line">   cudaStatus = cudaMemcpy(dev_a, a, HA * WA * sizeof(float), cudaMemcpyHostToDevice);</div><div class="line">   cudaStatus = cudaMemcpy(dev_b, b, HB * WB * sizeof(float), cudaMemcpyHostToDevice);</div></pre></td></tr></table></figure></p>
-<p>到这一步后，我们的准备工作就算是做好了，之后的工作是自己来设定，我们需要在GPU上开启多少个线程，这个你可以把它也视为核函数的一个参数，并且把这些device上的内存地址当作参数传递给核函数。</p>
-<p>在这个基本的GPU算法中，我们为C的每一行每一列都设置一个线程。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">//为每一个C[i][j]设置一个线程进行计算</div><div class="line">int block_size = 16;</div><div class="line"></div><div class="line">dim3 Threads(block_size, block_size);</div><div class="line">dim3 Blocks(WB / block_size, HA / block_size);</div><div class="line"></div><div class="line">//用这个方式来调用核函数</div><div class="line">MatrixMulGPU_1 &lt;&lt; &lt;Blocks, Threads &gt;&gt;&gt;(dev_c, dev_a, dev_b, WA, WB);</div></pre></td></tr></table></figure></p>
-<p>核函数，我们通过blockIdx和threadIdx索引获得当前是哪个线程，来计算它所负责的部分。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">__global__ void MatrixMulGPU_1(float *c, const float *a, const float *b, unsigned int WA, unsigned int WB)</div><div class="line">&#123;</div><div class="line">	float sum = 0;</div><div class="line">	//找出该线程所在的行和列</div><div class="line">	int row = blockIdx.y * blockDim.y + threadIdx.y;</div><div class="line">	int col = blockIdx.x * blockDim.x + threadIdx.x;</div><div class="line"></div><div class="line">	//线程Thread(row, col)负责计算C(row, col)</div><div class="line">	for (int i = 0; i &lt; WB; ++i)</div><div class="line">	&#123;</div><div class="line">		sum += a[row * WA + i] * b[i * WB + col];</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	c[row * WB + col] = sum;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>可以看到，每个线程只进行了N次运算，而每个线程之前是并行的，所以时间理论上只是O(n)，虽然在拷贝内存上还需要花费一些时间，但是从O(n^3)-&gt;O(n)这个提升也是巨大的，对时间的统计数据显示也是如此。从9000ms提升到50ms左右。</p>
-<h3 id="优化政策1，shared-memory"><a href="#优化政策1，shared-memory" class="headerlink" title="优化政策1，shared memory"></a>优化政策1，shared memory</h3><p>那么在实现了基本的矩阵GPU算法后，我们还有没有什么方法继续优化我们的算法，使得速度进一步提高呢？结果是肯定的。在之前的算法中，我们的每一个C[i][j]都算了n次，而在这n次取数的过程中，还有我们可以做的很多事情。首先我们可以对每一行每一列进行细分，划分成更细的block_size大小（可以自己来设定），然后再计算每个block_size*block_size时，我们设计一个共享区，然后让数的计算存这个共享区中取数，就可以减少取数的时间。下面是相应的代码，可以在英伟达的标准实例代码中找到：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div></pre></td><td class="code"><pre><div class="line">template&lt;int BLOCK_SIZE&gt; __global__ void MatrixMulGPU_2(float *c, const float *a, const float *b, unsigned int WA, unsigned int WB)</div><div class="line">&#123;</div><div class="line">	// Block index</div><div class="line">	int bx = blockIdx.x;</div><div class="line">	int by = blockIdx.y;</div><div class="line"></div><div class="line">	// Thread index</div><div class="line">	int tx = threadIdx.x;</div><div class="line">	int ty = threadIdx.y;</div><div class="line"></div><div class="line">	// Index of the first sub-matrix of A processed by the block</div><div class="line">	int aBegin = WA * BLOCK_SIZE * by;</div><div class="line"></div><div class="line">	// Index of the last sub-matrix of A processed by the block</div><div class="line">	int aEnd = aBegin + WA - 1;</div><div class="line"></div><div class="line">	// Step size used to iterate through the sub-matrices of A</div><div class="line">	int aStep = BLOCK_SIZE;</div><div class="line"></div><div class="line">	// Index of the first sub-matrix of B processed by the block</div><div class="line">	int bBegin = BLOCK_SIZE * bx;</div><div class="line"></div><div class="line">	// Step size used to iterate through the sub-matrices of B </div><div class="line">	int bStep = BLOCK_SIZE * WB;</div><div class="line"></div><div class="line">	// Csub is used to store the element of the block sub-matrix</div><div class="line">	// that is computed by the thread</div><div class="line">	float Csub = 0;</div><div class="line"></div><div class="line">	// Loop over all the sub-matrices of A and B</div><div class="line">	// required to compute the block sub-matrix</div><div class="line">	for (int i = aBegin, j = bBegin;</div><div class="line">		i &lt;= aEnd;</div><div class="line">		i += aStep, j += bStep)</div><div class="line">	&#123;</div><div class="line"></div><div class="line">		// Declaration of the shared memory array As used to</div><div class="line">		// store the sub-matrix of A</div><div class="line">		__shared__ float As[BLOCK_SIZE][BLOCK_SIZE];</div><div class="line"></div><div class="line">		// Declaration of the shared memory array Bs used to</div><div class="line">		// store the sub-matrix of B</div><div class="line">		__shared__ float Bs[BLOCK_SIZE][BLOCK_SIZE];</div><div class="line"></div><div class="line">		// Load the matrices from device memory</div><div class="line">		// to shared memory; each thread loads</div><div class="line">		// one element of each matrix</div><div class="line">		As[ty][tx] = a[i + WA * ty + tx];</div><div class="line">		Bs[ty][tx] = b[j + WB * ty + tx];</div><div class="line"></div><div class="line">		// Synchronize to make sure the matrices are loaded</div><div class="line">		__syncthreads();</div><div class="line"></div><div class="line">		// Multiply the two matrices together;</div><div class="line">		// each thread computes one element</div><div class="line">		// of the block sub-matrix</div><div class="line">#pragma unroll</div><div class="line"></div><div class="line">		for (int k = 0; k &lt; BLOCK_SIZE; ++k)</div><div class="line">		&#123;</div><div class="line">			Csub += As[ty][k] * Bs[k][tx];</div><div class="line">		&#125;</div><div class="line"></div><div class="line">		// Synchronize to make sure that the preceding</div><div class="line">		// computation is done before loading two new</div><div class="line">		// sub-matrices of A and B in the next iteration</div><div class="line">		__syncthreads();</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	// Write the block sub-matrix to device memory;</div><div class="line">	// each thread writes one element</div><div class="line">	int k = WB * BLOCK_SIZE * by + BLOCK_SIZE * bx;</div><div class="line">	c[k + WB * ty + tx] = Csub;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>其中<em>syncthreads()</em>是用于保证同步的，每一个线程在运行到这一步时，都会停下来等待，直至所有进程都进行到这才会继续下去，以此来保证同步。</p>
-<h3 id="优化政策2，-Texture-Memory"><a href="#优化政策2，-Texture-Memory" class="headerlink" title="优化政策2， Texture Memory"></a>优化政策2， Texture Memory</h3><p>纹理这一块，我的理解是，一般的内存都是线性存放的，不论是二维或者是三维，但存放的本质就是串行线性。故在访问例如 a[1][2]和a[1][3]时，比访问a[1][2]和a[2][2]时，后者的耗时要多一些。但对于纹理，就不会出现这样的问题，以此来提高访问效率。</p>
-<p>首先，先声明纹理<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">texture&lt;float, 2, cudaReadModeElementType&gt; texA;</div><div class="line">texture&lt;float, 2, cudaReadModeElementType&gt; texB;</div></pre></td></tr></table></figure></p>
-<p>然后以cudaArray为介质，将内存中的数放到纹理中<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">//GPU mode3 with texture memory</div><div class="line"></div><div class="line">		cudaChannelFormatDesc channelDescA = cudaCreateChannelDesc((int)sizeof(float) * 8, 0, 0, 0, cudaChannelFormatKindFloat);</div><div class="line">		cudaChannelFormatDesc channelDescB = cudaCreateChannelDesc((int)sizeof(float) * 8, 0, 0, 0, cudaChannelFormatKindFloat);</div><div class="line"></div><div class="line">		cudaArray* mat_A;</div><div class="line">		cudaArray* mat_B;</div><div class="line"></div><div class="line">		cudaMallocArray(&amp;mat_A, &amp;channelDescA, width_A, height_A);</div><div class="line">		cudaMallocArray(&amp;mat_B, &amp;channelDescB, width_B, height_B);</div><div class="line"></div><div class="line">		cudaMemcpyToArray(mat_A, 0, 0, A, sizeof(float) * height_A * width_A, cudaMemcpyHostToDevice);</div><div class="line">		cudaMemcpyToArray(mat_B, 0, 0, B, sizeof(float) * height_B * width_B, cudaMemcpyHostToDevice);</div></pre></td></tr></table></figure></p>
-<p>接着设置纹理的相关属性<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">texA.addressMode[0] = cudaAddressModeWrap;</div><div class="line">texA.addressMode[1] = cudaAddressModeWrap;</div><div class="line">texA.filterMode = cudaFilterModePoint;</div><div class="line">texA.normalized = false;</div><div class="line">texB.addressMode[0] = cudaAddressModeWrap;</div><div class="line">   texB.addressMode[1] = cudaAddressModeWrap;</div><div class="line">texB.filterMode = cudaFilterModePoint;</div><div class="line">texB.normalized = false;</div></pre></td></tr></table></figure></p>
-<p>最后纹理的相关核函数如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">__global__ void MatrixMul(float *c, unsigned int w, unsigned int h)</div><div class="line">&#123;</div><div class="line">	float sum = 0;</div><div class="line">	//找出该线程所在的行和列</div><div class="line">	int row = blockIdx.y * blockDim.y + threadIdx.y;</div><div class="line">	int col = blockIdx.x * blockDim.x + threadIdx.x;</div><div class="line"></div><div class="line">	/*</div><div class="line">	//计算纹理坐标</div><div class="line">	float u = row / (float)w;</div><div class="line">	float v = col / (float)h;</div><div class="line">	//线程Thread(row, col)负责计算C(row, col)</div><div class="line">	u -= 0.5f;</div><div class="line">	v -= 0.5f;</div><div class="line">	*/</div><div class="line"></div><div class="line">	for (int i = 0; i &lt; w; ++i)</div><div class="line">	&#123;</div><div class="line">		sum += tex2D(texA, i, row) * tex2D(texB, col, i);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	c[row * w + col] = sum;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>可以看到用2维纹理来访问我们相关的矩阵，是非常方便的，只需要用tex2D()就行。</p>
-<p>最后是这些方法的截图。<br><img src="http://ww4.sinaimg.cn/mw690/a207cfd8gw1f4448xxjsyj20it0cbwfx.jpg" alt="结果截图"></p>
-<p>注：在release版本中，使用texture优化的时间比正常的GPU算法要慢，这个现象由于矩阵乘法本身对取数是 有一定规律性的，而texture优化对一些随机访问内存算法比较有效，在此我们不深究，只为学习纹理内存用。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/11/04/Cuda Beginning/" data-id="civndnf5j0005sgwa56wi6fmd" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/11/04/C++ 程序设计思想（I）/" data-id="civw3xn1n0001kswackmnw1fb" class="article-share-link">Share</a>
       
       
     </footer>
@@ -644,6 +573,14 @@
       <ul>
         
           <li>
+            <a href="/2016/11/24/纹理内存/">纹理内存</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/24/常量内存和GPU事件性能测试/">常量内存和GPU事件性能测试</a>
+          </li>
+        
+          <li>
             <a href="/2016/11/09/Effective C++ --让自己习惯C++(02)/">Effective C++ --让自己习惯C++(02)</a>
           </li>
         
@@ -653,14 +590,6 @@
         
           <li>
             <a href="/2016/11/08/Trie树/">Trie树</a>
-          </li>
-        
-          <li>
-            <a href="/2016/11/04/C++程序设计---模板/">C++程序设计---模板</a>
-          </li>
-        
-          <li>
-            <a href="/2016/11/04/C++程序设计--多态和虚函数/">C++程序设计--多态和虚函数</a>
           </li>
         
       </ul>
